@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── 氧气捏捏 Design Tokens ── */
+:root {
+  --bg:          #F4F7F2;
+  --surface:     #FFFFFF;
+  --surface-2:   #EDF2EA;
+  --accent:      #5C8B6E;
+  --accent-soft: #EAF2EC;
+  --ink:         #2B3826;
+  --ink-2:       #6B7D67;
+  --ink-3:       #B4C5AE;
+  --sep:         rgba(92,139,110,0.13);
+  --danger:      #C05A4A;
+  --nav-bg:      rgba(244,247,242,0.92);
+  --tab-bg:      rgba(244,247,242,0.96);
+  --dark-bg:     #141B12;
+  --dark-paper:  #F6F8F4;
+}
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Noto Sans SC', system-ui, sans-serif;
+    background: #0D1209;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+  }
+  #root { height: 100%; }
+
+  /* ── iPhone shell ── */
+  @media (min-width: 600px) {
+    #phone-shell {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 393px;
+      height: 852px;
+      border-radius: 52px;
+      overflow: hidden;
+      background: var(--bg);
+      box-shadow:
+        0 0 0 1.5px rgba(255,255,255,0.08),
+        0 0 0 10px rgba(0,0,0,0.45),
+        0 60px 120px rgba(0,0,0,0.8);
+    }
+  }
+  @media (max-width: 599px) {
+    #phone-shell {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+    }
+  }
+}
+
+@layer components {
+  /* Paper grain — for knowledge cards only */
+  .card-grain { position: relative; overflow: hidden; }
+  .card-grain::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    background: rgba(30,40,24,1);
+    filter: url(#grain);
+    opacity: 0.07;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .card-grain > * { position: relative; z-index: 2; }
+
+  /* iOS-style frosted nav */
+  .ios-nav {
+    position: sticky;
+    top: 0;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    background: var(--nav-bg);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border-bottom: 0.5px solid var(--sep);
+    z-index: 20;
+  }
+
+  /* iOS tab bar */
+  .ios-tab-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 83px; /* 49px bar + 34px safe area */
+    padding-bottom: 34px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    padding-top: 8px;
+    background: var(--tab-bg);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border-top: 0.5px solid var(--sep);
+    z-index: 30;
+  }
+
+  /* Safe area inset for content */
+  .content-area {
+    position: absolute;
+    inset: 0;
+    bottom: 83px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  .content-area::-webkit-scrollbar { display: none; }
+
+  /* Row separator */
+  .row-sep { height: 0.5px; background: var(--sep); margin-left: 16px; }
+
+  /* Accent button */
+  .btn-accent {
+    background: var(--accent);
+    color: #fff;
+    border-radius: 14px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    padding: 14px;
+    width: 100%;
+    letter-spacing: 0.01em;
+    transition: opacity 0.15s ease;
+  }
+  .btn-accent:disabled { opacity: 0.38; }
+  .btn-accent:not(:disabled):active { opacity: 0.82; }
+}
+
+@layer utilities {
+  .font-serif   { font-family: 'Noto Serif SC', 'Songti SC', serif; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* Breathing animation for loading */
+@keyframes breathe {
+  0%, 100% { opacity: 0.4; transform: scale(0.97); }
+  50%       { opacity: 1;   transform: scale(1); }
+}
+.breathe { animation: breathe 2s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .breathe { animation: none; opacity: 0.7; }
+}

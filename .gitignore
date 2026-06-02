@@ -1,0 +1,23 @@
+# Python
+backend/.venv/
+backend/__pycache__/
+backend/*.pyc
+backend/.env
+
+# Data (personal knowledge, keep local)
+data/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# OS
+.DS_Store
+*.swp
+
+# Logs
+/tmp/
+*.log
+
+# Design previews (keep local)
+design-preview*.html
