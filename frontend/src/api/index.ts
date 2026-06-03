@@ -1,9 +1,15 @@
 import axios from 'axios'
 import type { Episode, TopicsResponse, TopicDetail } from '../types'
 
-// In dev, empty base → Vite proxy handles "/api".
-// In production (PWA / APK), set VITE_API_BASE to the deployed backend URL.
-export const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined)?.replace(/\/$/, '') || ''
+// 部署好的后端地址（APK 离线包默认指向它；可被 VITE_API_BASE 覆盖）
+const DEPLOYED_BACKEND = 'https://nico9800000-oxygen-squeeze.hf.space'
+// 是否运行在 Capacitor 原生壳里（安卓 APK / iOS 原生）
+const IS_NATIVE = typeof window !== 'undefined' && !!(window as any).Capacitor
+
+// 优先用环境变量；原生壳里用内置后端地址；PWA/网页用同源（空）。
+export const API_BASE =
+  (import.meta.env.VITE_API_BASE as string | undefined)?.replace(/\/$/, '') ||
+  (IS_NATIVE ? DEPLOYED_BACKEND : '')
 
 /** Build an absolute API path that works in dev, PWA, and native shells. */
 export const apiUrl = (path: string) => `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`
