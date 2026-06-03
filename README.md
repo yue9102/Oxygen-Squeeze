@@ -1,3 +1,13 @@
+---
+title: 氧气捏捏
+emoji: 🫧
+colorFrom: green
+colorTo: gray
+sdk: docker
+app_port: 8000
+pinned: false
+---
+
 # 氧气捏捏 🫧
 
 把每天通勤听的 AI 播客，捏成属于你自己的认知框架。

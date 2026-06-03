@@ -16,6 +16,9 @@ COPY backend/ ./
 # Place built web where main.py looks for it: <repo>/frontend/dist
 COPY --from=web /web/dist /app/frontend/dist
 
+# Writable data dir (HF Spaces / containers run as non-root user)
+RUN mkdir -p /app/data && chmod 777 /app/data
+
 EXPOSE 8000
 # Render provides $PORT; default to 8000 locally.
 CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
