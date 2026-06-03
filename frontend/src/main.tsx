@@ -2,10 +2,11 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './index.css'
-import Home    from './pages/Home'
-import Cards   from './pages/Cards'
-import Shelf   from './pages/Shelf'
-import History from './pages/History'
+import Home        from './pages/Home'
+import Cards       from './pages/Cards'
+import Shelf       from './pages/Shelf'
+import TopicDetail from './pages/TopicDetail'
+import History     from './pages/History'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -32,7 +33,8 @@ createRoot(document.getElementById('root')!).render(
           <Routes>
             <Route path="/"          element={<Home />} />
             <Route path="/cards/:id" element={<Cards />} />
-            <Route path="/shelf"     element={<Shelf />} />
+            <Route path="/shelf"                          element={<Shelf />} />
+            <Route path="/shelf/topic/:anchor/:subtopic"  element={<TopicDetail />} />
             <Route path="/history"   element={<History />} />
             <Route path="*"          element={<Navigate to="/" replace />} />
           </Routes>
@@ -48,3 +50,10 @@ createRoot(document.getElementById('root')!).render(
     </div>
   </StrictMode>
 )
+
+// Register service worker for PWA (skip inside Capacitor native shell).
+if ('serviceWorker' in navigator && !(window as any).Capacitor) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {})
+  })
+}

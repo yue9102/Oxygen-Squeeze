@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { apiUrl } from '../api'
 
 const STEPS = ['去拿一下…', '帮你想想…', '整理好了！']
 
@@ -31,7 +32,7 @@ export default function UrlSheet({ open, onClose, onDone }: Props) {
     const t2 = setTimeout(() => setStep(2), 5500)
 
     try {
-      const res = await fetch('/api/process', {
+      const res = await fetch(apiUrl('/api/process'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: url.trim() }),

@@ -14,7 +14,10 @@ class Insight(BaseModel):
     headline: str
     body: str
     pm_relevance: str
-    category: str  # 技术趋势 | 产品设计 | 行业动态 | 具身智能 | 商业模式
+    category: str = ""        # kept for backward compat
+    anchor: str = "AI认知"    # 大类，固定 4 选 1
+    subtopic: str = "其他"    # 子类，从该大类的固定列表里选
+    topic_tag: str = ""       # kept for backward compat (old free-form tag)
 
 
 class AnalysisResult(BaseModel):

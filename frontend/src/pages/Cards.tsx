@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
+import { apiUrl } from '../api'
 import type { Episode } from '../types'
 
 type CardData =
@@ -68,7 +69,7 @@ export default function Cards() {
 
   useEffect(() => {
     if (!id) return
-    fetch(`/api/episodes/${id}`).then(r => r.json()).then(ep => { setEpisode(ep); setLoading(false) })
+    fetch(apiUrl(`/api/episodes/${id}`)).then(r => r.json()).then(ep => { setEpisode(ep); setLoading(false) })
   }, [id])
 
   if (loading || !episode) {

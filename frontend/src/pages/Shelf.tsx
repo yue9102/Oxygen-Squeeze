@@ -1,72 +1,60 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { fetchTopics } from '../api'
 import BottomNav from '../components/BottomNav'
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  '技术趋势': '🌿', '产品设计': '🎋', '行业动态': '🌊',
-  '具身智能': '🌱', '商业模式': '🍃',
-}
-
-interface FrameworkItem { text: string; date: string; source: string; episode_title: string }
-type Framework = Record<string, FrameworkItem[]>
+import NavBar    from '../components/NavBar'
+import type { TopicCard, TopicsResponse, Anchor } from '../types'
+import { ANCHORS, ANCHOR_COLOR } from '../types'
 
 export default function Shelf() {
-  const [fw, setFw]               = useState<Framework>({})
-  const [open, setOpen]           = useState<string | null>(null)
-  const [loading, setLoading]     = useState(true)
+  const nav = useNavigate()
+  const [topics, setTopics] = useState<TopicsResponse | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/framework').then(r => r.json()).then(d => { setFw(d); setLoading(false) }).catch(() => setLoading(false))
+    fetchTopics()
+      .then(d => { setTopics(d); setLoading(false) })
+      .catch(() => setLoading(false))
   }, [])
 
-  const total = Object.values(fw).reduce((s, v) => s + v.length, 0)
-  const max   = Math.max(...Object.values(fw).map(v => v.length), 1)
+  const totalCount = topics ? ANCHORS.reduce((s, a) => s + (topics[a]?.length ?? 0), 0) : 0
 
   return (
-    <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)' }}>
+    <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
 
-      {/* Status */}
-      <div style={{ height: 54 }} />
+      <NavBar
+        title="知识书架"
+        subtitle={totalCount > 0 ? `${totalCount} 个话题在生长` : '你听过的，都在这里慢慢生长'}
+      />
 
-      {/* Nav bar */}
-      <div style={{ height: 44, display: 'flex', alignItems: 'center', padding: '0 20px', borderBottom: '0.5px solid var(--sep)', background: 'var(--nav-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-        <span style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '1.0625rem', fontWeight: 700, color: 'var(--ink)' }}>知识藏着呢</span>
-        {total > 0 && <span style={{ marginLeft: 8, fontSize: '0.75rem', color: 'var(--ink-3)' }}>共 {total} 条</span>}
-      </div>
-
-      {/* Body */}
-      <div className="no-scrollbar" style={{ position: 'absolute', top: 98, left: 0, right: 0, bottom: 83, overflowY: 'auto', overscrollBehavior: 'contain' }}>
-
+      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 16px 0' }} className="no-scrollbar">
         {loading ? (
-          <div style={{ padding: '60px 0', textAlign: 'center' }}>
-            <div className="breathe" style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--accent-soft)', margin: '0 auto' }} />
-          </div>
-        ) : total === 0 ? (
-          <div style={{ padding: '60px 24px', textAlign: 'center' }}>
-            <p style={{ fontSize: '2rem', marginBottom: 16 }}>🌱</p>
-            <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '1.0625rem', fontWeight: 700, color: 'var(--ink)', marginBottom: 8 }}>书架还空着呢</p>
-            <p style={{ fontSize: '0.875rem', color: 'var(--ink-2)', lineHeight: 1.7 }}>每次听完播客整理的洞察<br/>会慢慢积累到这里来</p>
-          </div>
-        ) : (
-          <>
-            <div style={{ padding: '16px 16px 8px' }}>
-              <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 10px rgba(43,56,38,0.07)' }}>
-                {Object.entries(fw).map(([cat, items], i, arr) => (
-                  <div key={cat}>
-                    <CategoryRow cat={cat} items={items} max={max} isOpen={open === cat} onToggle={() => setOpen(open === cat ? null : cat)} />
-                    {i < arr.length - 1 && <div style={{ height: '0.5px', background: 'var(--sep)', marginLeft: 56 }} />}
-                  </div>
-                ))}
+          <div style={{ paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 24 }}>
+            {[1,2].map(s => (
+              <div key={s}>
+                <div style={{ width: 80, height: 18, borderRadius: 6, background: 'rgba(92,139,110,0.1)', marginBottom: 12 }} />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  {[1,2].map(i => <div key={i} style={{ height: 120, background: 'rgba(92,139,110,0.06)', borderRadius: 16, animation: 'pulse 1.6s ease-in-out infinite' }} />)}
+                </div>
               </div>
-            </div>
-
-            {/* Footer */}
-            <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--ink-3)', padding: '16px 0 8px' }}>
-              已沉淀 {total} 条知识
-            </p>
-          </>
+            ))}
+          </div>
+        ) : totalCount === 0 ? (
+          <EmptyShelf />
+        ) : (
+          <div style={{ paddingTop: 8 }}>
+            {ANCHORS.map(anchor => (
+              <AnchorSection
+                key={anchor}
+                anchor={anchor}
+                cards={topics?.[anchor] ?? []}
+                onCardClick={(sub) => nav(`/shelf/topic/${encodeURIComponent(anchor)}/${encodeURIComponent(sub)}`)}
+              />
+            ))}
+          </div>
         )}
-        <div style={{ height: 24 }} />
+        <div style={{ height: 100 }} />
       </div>
 
       <BottomNav />
@@ -74,51 +62,134 @@ export default function Shelf() {
   )
 }
 
-function CategoryRow({ cat, items, max, isOpen, onToggle }: { cat: string; items: FrameworkItem[]; max: number; isOpen: boolean; onToggle: () => void }) {
-  const pct = max > 0 ? items.length / max : 0
-  const emoji = CATEGORY_EMOJI[cat] || '🍀'
+function AnchorSection({ anchor, cards, onCardClick }: {
+  anchor: Anchor
+  cards: TopicCard[]
+  onCardClick: (subtopic: string) => void
+}) {
+  const color = ANCHOR_COLOR[anchor]
 
   return (
-    <div>
-      <motion.button whileTap={{ backgroundColor: 'var(--surface-2)' }} onClick={onToggle} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-        {/* Emoji */}
-        <div style={{ width: 36, height: 36, borderRadius: 9, background: 'var(--accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.125rem', flexShrink: 0 }}>{emoji}</div>
+    <section style={{ marginBottom: 26 }}>
+      {/* Section header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, paddingLeft: 2 }}>
+        <div style={{ width: 8, height: 8, borderRadius: '50%', background: color.dot, flexShrink: 0 }} />
+        <h2 style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '1.0625rem', fontWeight: 700, color: 'var(--ink)' }}>
+          {anchor}
+        </h2>
+        <span style={{ fontSize: '0.6875rem', color: 'var(--ink-muted)', fontFamily: '-apple-system,system-ui,sans-serif' }}>
+          {cards.length > 0 ? `${cards.length} 个话题` : ''}
+        </span>
+      </div>
 
-        {/* Content */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-            <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--ink)' }}>{cat}</span>
-            <span style={{ fontSize: '0.75rem', color: items.length > 0 ? 'var(--accent)' : 'var(--ink-3)', fontWeight: 600 }}>
-              {items.length} 条
-            </span>
-          </div>
-          {/* Thickness bar */}
-          <div style={{ height: 4, borderRadius: 2, background: 'var(--surface-2)', overflow: 'hidden' }}>
-            <motion.div initial={{ width: 0 }} animate={{ width: `${pct * 100}%` }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }} style={{ height: '100%', borderRadius: 2, background: pct > 0 ? 'var(--accent)' : 'transparent' }} />
-          </div>
-          {items.length > 0 && (
-            <p style={{ fontSize: '0.75rem', color: 'var(--ink-3)', marginTop: 5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{items[items.length - 1].text}</p>
-          )}
+      {/* Subtopic cards or empty hint */}
+      {cards.length === 0 ? (
+        <div style={{
+          padding: '16px', borderRadius: 14, border: '1px dashed rgba(92,139,110,0.2)',
+          textAlign: 'center',
+        }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', fontFamily: "'Noto Serif SC',serif" }}>
+            还没有相关内容
+          </p>
         </div>
-
-        {items.length > 0 && (
-          <motion.div animate={{ rotate: isOpen ? 90 : 0 }} transition={{ duration: 0.2 }} style={{ flexShrink: 0, opacity: 0.35 }}>
-            <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="var(--ink)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </motion.div>
-        )}
-      </motion.button>
-
-      {/* Expanded insights */}
-      {isOpen && items.length > 0 && (
-        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} style={{ overflow: 'hidden', background: 'var(--accent-soft)' }}>
-          {items.map((item, i) => (
-            <div key={i} style={{ padding: '10px 16px 10px 64px', borderTop: i > 0 ? '0.5px solid rgba(92,139,110,0.15)' : 'none' }}>
-              <p style={{ fontSize: '0.875rem', color: 'var(--ink)', lineHeight: 1.55, marginBottom: 4 }}>{item.text}</p>
-              <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)' }}>{item.date} · {item.source}</p>
-            </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          {cards.map((card, i) => (
+            <motion.div
+              key={card.name}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04, duration: 0.28, ease: [0.4,0,0.2,1] }}
+            >
+              <SubtopicCard card={card} color={color} onClick={() => onCardClick(card.name)} />
+            </motion.div>
           ))}
-        </motion.div>
+        </div>
       )}
+    </section>
+  )
+}
+
+function SubtopicCard({ card, color, onClick }: {
+  card: TopicCard
+  color: { bg: string; text: string; dot: string }
+  onClick: () => void
+}) {
+  const sleeping = card.is_sleeping
+  const daysLabel = card.days_since_active === 0 ? '今天' :
+    card.days_since_active === 1 ? '昨天' : `${card.days_since_active}天前`
+
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        width: '100%', textAlign: 'left', cursor: 'pointer', display: 'block',
+        background: sleeping ? 'rgba(240,238,234,0.5)' : '#F6F8F4',
+        backgroundImage: sleeping ? 'none' : 'radial-gradient(ellipse 140% 140% at 25% 20%, #FAFCF8 0%, #EEF2EB 100%)',
+        borderRadius: 16,
+        padding: '13px 13px 11px',
+        border: `1px solid ${sleeping ? 'rgba(180,170,160,0.18)' : 'rgba(92,139,110,0.14)'}`,
+        boxShadow: sleeping ? 'none' : '0 2px 10px rgba(60,90,60,0.07)',
+        opacity: sleeping ? 0.72 : 1,
+        minHeight: 116,
+      }}
+    >
+      {/* Subtopic name */}
+      <p style={{
+        fontFamily: "'Noto Serif SC',serif",
+        fontSize: '1rem', fontWeight: 700,
+        color: sleeping ? '#8A8078' : '#2B3826',
+        lineHeight: 1.3, marginBottom: 7,
+      }}>
+        {card.name}
+      </p>
+
+      {/* Preview */}
+      <p style={{
+        fontSize: '0.6875rem', color: sleeping ? '#A8A098' : '#6B7D67',
+        lineHeight: 1.5, marginBottom: 9,
+        overflow: 'hidden', display: '-webkit-box',
+        WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+        fontFamily: "'Noto Serif SC',serif",
+      } as React.CSSProperties}>
+        {card.preview}
+      </p>
+
+      {/* Footer */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: '0.5rem', color: sleeping ? '#B0A8A0' : '#9AAA94', fontFamily: '-apple-system,system-ui,sans-serif' }}>
+          {card.insight_count} 条 · {card.episode_count} 期
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <div style={{
+            width: 5, height: 5, borderRadius: '50%', flexShrink: 0,
+            background: sleeping ? '#C0B8B0' : color.dot,
+          }} />
+          <span style={{ fontSize: '0.5rem', color: sleeping ? '#B0A8A0' : color.text, fontFamily: '-apple-system,system-ui,sans-serif' }}>
+            {daysLabel}
+          </span>
+        </div>
+      </div>
+    </button>
+  )
+}
+
+function EmptyShelf() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 280, gap: 14, padding: '0 40px', textAlign: 'center' }}>
+      <div style={{ width: 56, height: 56, borderRadius: 28, background: 'rgba(92,139,110,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <path d="M4 19V6a2 2 0 012-2h12a2 2 0 012 2v13" stroke="#5C8B6E" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M4 19a2 2 0 002 2h12a2 2 0 002-2" stroke="#5C8B6E" strokeWidth="1.5"/>
+          <path d="M9 10h6M9 14h4" stroke="#5C8B6E" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '1rem', fontWeight: 700, color: '#4A5A46' }}>书架还是空的</p>
+        <p style={{ fontSize: '0.8125rem', color: '#8A9A84', marginTop: 6, lineHeight: 1.6 }}>
+          听完播客贴入链接<br/>洞察会自动归入这四个大类
+        </p>
+      </div>
     </div>
   )
 }

@@ -1,14 +1,16 @@
 {
-  "name": "播客认知",
-  "short_name": "播客认知",
-  "description": "播客内容沉淀与认知积累",
+  "name": "氧气捏捏",
+  "short_name": "氧气捏捏",
+  "description": "把听过的播客，捏成自己的 AI 认知",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#F9F7F3",
-  "theme_color": "#F9F7F3",
+  "background_color": "#F4F7F2",
+  "theme_color": "#F4F7F2",
   "orientation": "portrait",
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

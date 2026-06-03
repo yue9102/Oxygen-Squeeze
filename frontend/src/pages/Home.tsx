@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import BottomNav from '../components/BottomNav'
 import UrlSheet  from '../components/UrlSheet'
+import { apiUrl } from '../api'
 import type { Episode } from '../types'
 
 function formatDate(iso: string) {
@@ -28,7 +29,7 @@ export default function Home() {
   const [scrolled, setScrolled]   = useState(false)
   const nav = useNavigate()
 
-  function load() { fetch('/api/episodes').then(r => r.json()).then(setEpisodes).catch(() => {}) }
+  function load() { fetch(apiUrl('/api/episodes')).then(r => r.json()).then(setEpisodes).catch(() => {}) }
   useEffect(load, [])
 
   function onDone(id: string) { setSheetOpen(false); load(); setTimeout(() => nav(`/cards/${id}`), 320) }

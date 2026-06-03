@@ -1,7 +1,14 @@
 import axios from 'axios'
-import type { Episode, Framework, FrameworkStats } from '../types'
+import type { Episode, TopicsResponse, TopicDetail } from '../types'
 
-const http = axios.create({ baseURL: '/api' })
+// In dev, empty base → Vite proxy handles "/api".
+// In production (PWA / APK), set VITE_API_BASE to the deployed backend URL.
+export const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined)?.replace(/\/$/, '') || ''
+
+/** Build an absolute API path that works in dev, PWA, and native shells. */
+export const apiUrl = (path: string) => `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`
+
+const http = axios.create({ baseURL: `${API_BASE}/api` })
 
 export async function processEpisode(url: string): Promise<Episode> {
   const { data } = await http.post<{ ok: boolean; episode: Episode }>('/process', { url })
@@ -18,12 +25,20 @@ export async function fetchEpisode(id: string): Promise<Episode> {
   return data
 }
 
-export async function fetchFramework(): Promise<Framework> {
-  const { data } = await http.get<Framework>('/framework')
+export async function fetchTopics(): Promise<TopicsResponse> {
+  const { data } = await http.get<TopicsResponse>('/topics')
   return data
 }
 
-export async function fetchFrameworkStats(): Promise<FrameworkStats> {
-  const { data } = await http.get<FrameworkStats>('/framework/stats')
+export async function fetchTopicDetail(anchor: string, subtopic: string): Promise<TopicDetail> {
+  const { data } = await http.get<TopicDetail>('/topics/detail', { params: { anchor, subtopic } })
   return data
+}
+
+export async function reassignInsight(episode_id: string, headline: string, anchor: string, subtopic: string): Promise<void> {
+  await http.post('/insights/reassign', { episode_id, headline, anchor, subtopic })
+}
+
+export async function deleteEpisode(id: string): Promise<void> {
+  await http.delete(`/episodes/${id}`)
 }
