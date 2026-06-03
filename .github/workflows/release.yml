@@ -54,7 +54,7 @@ jobs:
         run: |
           mkdir -p out
           cp frontend/android/app/build/outputs/apk/debug/app-debug.apk \
-             out/氧气捏捏-${{ github.ref_name }}.apk
+             out/oxygen-squeeze-${{ github.ref_name }}.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
