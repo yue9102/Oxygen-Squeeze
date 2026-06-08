@@ -34,7 +34,7 @@ export default function Home() {
   return (
     <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
 
-      <NavBar title="今天听了什么呀" rightAction={addButton} />
+      <NavBar title="今天听了什么呀" subtitle="贴一条链接，捏出今天的收获" rightAction={addButton} />
 
       <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
         <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>

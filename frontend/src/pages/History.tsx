@@ -53,7 +53,7 @@ export default function History() {
 
       <NavBar
         title="听过的"
-        subtitle={episodes.length > 0 ? `共 ${episodes.length} 期播客` : undefined}
+        subtitle={episodes.length > 0 ? `共 ${episodes.length} 期，都收在这里` : '你听过的每一期，都收在这里'}
         rightAction={episodes.length > 0 ? (
           <button
             onClick={() => setEditing(e => !e)}
