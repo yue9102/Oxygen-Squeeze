@@ -54,15 +54,24 @@ export default function Home() {
       {/* Scroll body */}
       <div className="no-scrollbar" onScroll={e => setScrolled(e.currentTarget.scrollTop > 40)} style={{ position: 'absolute', top: 54, left: 0, right: 0, bottom: 83, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
 
-        {/* Large title */}
-        <div style={{ padding: '48px 20px 4px' }}>
-          <p style={{ fontSize: '0.75rem', color: 'var(--ink-3)', marginBottom: 6 }}>氧气捏捏</p>
-          <h1 style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '2rem', fontWeight: 900, color: 'var(--ink)', lineHeight: 1.3 }}>今天听了什么呀</h1>
+        <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+          {/* Large title */}
+          <div style={{ padding: '28px 20px 4px', flexShrink: 0 }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--ink-3)', marginBottom: 6 }}>氧气捏捏</p>
+            <h1 style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '2rem', fontWeight: 900, color: 'var(--ink)', lineHeight: 1.3 }}>今天听了什么呀</h1>
+          </div>
+
+          {episodes.length === 0 ? (
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: 40 }}>
+              <EmptyState onAdd={() => setSheetOpen(true)} />
+            </div>
+          ) : (
+            <>
+              <EpisodeList episodes={episodes} onAdd={() => setSheetOpen(true)} />
+              <div style={{ height: 24 }} />
+            </>
+          )}
         </div>
-
-        {episodes.length === 0 ? <EmptyState onAdd={() => setSheetOpen(true)} /> : <EpisodeList episodes={episodes} onAdd={() => setSheetOpen(true)} />}
-
-        <div style={{ height: 24 }} />
       </div>
 
       <BottomNav />
@@ -73,7 +82,7 @@ export default function Home() {
 
 function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} style={{ padding: '48px 24px', textAlign: 'center' }}>
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} style={{ padding: '0 24px', textAlign: 'center' }}>
       <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'var(--accent-soft)', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
           <path d="M18 4C11.37 4 6 9.37 6 16v7a3 3 0 003 3h1.5a3 3 0 003-3v-4a3 3 0 00-3-3H9v-1.5a9 9 0 0118 0V16h-1.5a3 3 0 00-3 3v4a3 3 0 003 3H27a3 3 0 003-3v-7c0-6.63-5.37-12-12-12z" fill="var(--accent)"/>
