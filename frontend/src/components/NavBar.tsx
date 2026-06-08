@@ -22,8 +22,8 @@ export default function NavBar({ title, subtitle, rightAction, children }: NavBa
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
     }}>
-      {/* Status bar safe area — scrim keeps white iOS status text legible */}
-      <div className="statusbar-safe" style={{ height: 'var(--safe-top)' }} />
+      {/* Status bar safe area (54px on desktop preview, system inset on phones) */}
+      <div style={{ height: 'var(--safe-top)' }} />
 
       {/* Title row */}
       <div style={{
