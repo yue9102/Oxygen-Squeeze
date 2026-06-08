@@ -29,9 +29,9 @@ const variants = {
 
 /* ── 氧气捏捏 paper card style ── */
 const PAPER: React.CSSProperties = {
-  background: '#FFFFFF',
-  backgroundImage: 'radial-gradient(ellipse 130% 120% at 35% 30%, #FFFFFF 0%, #F4F8F3 100%)',
-  boxShadow: '0 10px 30px rgba(60,90,60,0.14), 0 2px 8px rgba(60,90,60,0.08), inset 0 0 0 0.5px rgba(92,139,110,0.12)',
+  background: '#F6F8F4',
+  backgroundImage: 'radial-gradient(ellipse 130% 120% at 35% 30%, #FAFCF8 0%, #EEF2EB 100%)',
+  boxShadow: '0 8px 32px rgba(14,27,12,0.4), 0 2px 8px rgba(14,27,12,0.2), inset 0 0 0 0.5px rgba(92,139,110,0.15)',
   borderRadius: 20,
   padding: '28px 24px',
   minHeight: 400,
@@ -74,7 +74,7 @@ export default function Cards() {
 
   if (loading || !episode) {
     return (
-      <div style={{ position: 'absolute', inset: 0, background: 'var(--reader-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'var(--dark-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="breathe" style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(92,139,110,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="24" height="24" viewBox="0 0 36 36" fill="none">
             <path d="M18 4C11.37 4 6 9.37 6 16v7a3 3 0 003 3h1.5a3 3 0 003-3v-4a3 3 0 00-3-3H9v-1.5a9 9 0 0118 0V16h-1.5a3 3 0 00-3 3v4a3 3 0 003 3H27a3 3 0 003-3v-7c0-6.63-5.37-12-12-12z" fill="var(--accent)"/>
@@ -91,10 +91,10 @@ export default function Cards() {
   function goPrev(e: React.MouseEvent) { e.stopPropagation(); if (idx > 0) setIdx(i => i - 1) }
 
   return (
-    <div style={{ position: 'absolute', inset: 0, background: 'var(--reader-bg)' }} onClick={goNext}>
+    <div style={{ position: 'absolute', inset: 0, background: 'var(--dark-bg)' }} onClick={goNext}>
 
-      {/* Subtle paper grain over the soft sage background */}
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(92,139,110,1)', filter: 'url(#grain)', opacity: 0.03, pointerEvents: 'none' }} />
+      {/* Paper grain overlay for dark background */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(20,40,18,1)', filter: 'url(#grain)', opacity: 0.04, pointerEvents: 'none' }} />
 
       {/* Close button */}
       <button

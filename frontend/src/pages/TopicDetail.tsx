@@ -27,11 +27,12 @@ export default function TopicDetail() {
   return (
     <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
 
-      {/* Back nav (compact, no large title needed for detail pages) */}
-      <div style={{
+      {/* Status bar safe area — scrim keeps white iOS status text legible */}
+      <div className="statusbar-safe" style={{
         flexShrink: 0, height: 'var(--safe-top)', background: 'var(--nav-bg)',
         backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
       }} />
+      {/* Back nav row */}
       <div style={{
         flexShrink: 0, height: 44, display: 'flex', alignItems: 'center',
         padding: '0 16px', background: 'var(--nav-bg)',

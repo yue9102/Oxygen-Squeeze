@@ -60,10 +60,16 @@
       inset: 0;
       background: var(--bg);
     }
-    /* 顶部留白取系统安全区的一半，内容更贴顶（仍留出灵动岛空间） */
-    :root { --safe-top: max(calc(env(safe-area-inset-top) * 0.5), 8px); }
+    /* black-translucent 下内容延伸到状态栏底，留白用完整安全区刚好贴在灵动岛下方 */
+    :root { --safe-top: max(env(safe-area-inset-top), 12px); }
     /* Fake phone chrome (island / home bar / fake status bar) is preview-only */
     .device-chrome { display: none !important; }
+  }
+
+  /* 浅色页顶部状态栏护色：black-translucent 下系统状态文字为白色，
+     在很浅的背景上不可读，故在状态文字区做一层从深到透的苔墨渐变。 */
+  .statusbar-safe {
+    background: linear-gradient(180deg, rgba(43,56,38,0.38), rgba(43,56,38,0.10) 65%, transparent);
   }
 
   /* No pinch / double-tap zoom, no text auto-resize, no long-press callout */
