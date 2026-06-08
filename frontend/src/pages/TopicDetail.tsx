@@ -29,7 +29,7 @@ export default function TopicDetail() {
 
       {/* Back nav (compact, no large title needed for detail pages) */}
       <div style={{
-        flexShrink: 0, height: 54, background: 'var(--nav-bg)',
+        flexShrink: 0, height: 'var(--safe-top)', background: 'var(--nav-bg)',
         backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
       }} />
       <div style={{

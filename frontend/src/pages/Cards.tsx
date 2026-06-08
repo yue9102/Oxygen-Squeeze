@@ -100,7 +100,7 @@ export default function Cards() {
       <button
         onClick={e => { e.stopPropagation(); nav('/') }}
         style={{
-          position: 'absolute', top: 54, left: 20, zIndex: 50,
+          position: 'absolute', top: 'calc(var(--safe-top) + 4px)', left: 20, zIndex: 50,
           width: 34, height: 34, borderRadius: 17,
           background: 'rgba(92,139,110,0.18)', border: 'none', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -112,7 +112,7 @@ export default function Cards() {
       </button>
 
       {/* Episode name in top right */}
-      <div style={{ position: 'absolute', top: 54, right: 20, zIndex: 50, maxWidth: 180 }}>
+      <div style={{ position: 'absolute', top: 'calc(var(--safe-top) + 4px)', right: 20, zIndex: 50, maxWidth: 180 }}>
         <p style={{ fontSize: '0.6875rem', color: 'rgba(92,139,110,0.6)', textAlign: 'right', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {episode.podcast_name}
         </p>
