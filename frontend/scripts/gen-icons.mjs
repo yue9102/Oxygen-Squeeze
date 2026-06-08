@@ -47,8 +47,6 @@ function lerp(a, b, t) { return a + (b - a) * t }
 
 function draw(size) {
   const buf = Buffer.alloc(size * size * 4)
-  const r = size * 0.22         // corner radius
-  const cx = size / 2
   // bubble centres (relative)
   const bubbles = [
     { x: 0.40, y: 0.44, r: 0.20, a: 0.95 },
@@ -58,12 +56,7 @@ function draw(size) {
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const i = (y * size + x) * 4
-      // rounded-rect mask
-      const dx = Math.max(r - x, x - (size - r), 0)
-      const dy = Math.max(r - y, y - (size - r), 0)
-      const inside = (dx * dx + dy * dy) <= r * r
-      if (!inside) { buf[i] = buf[i+1] = buf[i+2] = buf[i+3] = 0; continue }
-
+      // 铺满整个方块，不留透明角（iOS / 安卓会自己加圆角遮罩）
       // vertical sage gradient: #6FAE88 → #4F8268
       const t = y / size
       let R = Math.round(lerp(0x6F, 0x4F, t))
