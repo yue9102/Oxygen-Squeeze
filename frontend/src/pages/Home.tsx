@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import BottomNav from '../components/BottomNav'
+import NavBar    from '../components/NavBar'
 import UrlSheet  from '../components/UrlSheet'
 import { apiUrl } from '../api'
 import type { Episode } from '../types'
@@ -14,19 +15,9 @@ function formatDate(iso: string) {
   return `${d.getMonth() + 1}月${d.getDate()}日`
 }
 
-function Clock() {
-  const [t, setT] = useState('')
-  useEffect(() => {
-    const fmt = () => { const n = new Date(); setT(`${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`) }
-    fmt(); const id = setInterval(fmt, 10000); return () => clearInterval(id)
-  }, [])
-  return <>{t}</>
-}
-
 export default function Home() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [episodes, setEpisodes]   = useState<Episode[]>([])
-  const [scrolled, setScrolled]   = useState(false)
   const nav = useNavigate()
 
   function load() { fetch(apiUrl('/api/episodes')).then(r => r.json()).then(setEpisodes).catch(() => {}) }
@@ -34,33 +25,19 @@ export default function Home() {
 
   function onDone(id: string) { setSheetOpen(false); load(); setTimeout(() => nav(`/cards/${id}`), 320) }
 
+  const addButton = (
+    <button onClick={() => setSheetOpen(true)} style={{ width: 34, height: 34, borderRadius: 17, background: 'var(--accent)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(92,139,110,0.4)' }}>
+      <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="#fff" strokeWidth="2.2" strokeLinecap="round"/></svg>
+    </button>
+  )
+
   return (
-    <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)' }}>
+    <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
 
-      {/* Fake status bar — desktop preview only (real phones show the OS one) */}
-      <div className="device-chrome" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 54, zIndex: 25, pointerEvents: 'none', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 28px 8px' }}>
-        <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink)' }}><Clock /></span>
-        <span style={{ fontSize: '0.75rem', color: 'var(--ink-3)' }}>●●●●</span>
-      </div>
+      <NavBar title="今天听了什么呀" rightAction={addButton} />
 
-      {/* Nav bar */}
-      <div style={{ position: 'absolute', top: 54, left: 0, right: 0, height: 44, zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', background: scrolled ? 'var(--nav-bg)' : 'transparent', backdropFilter: scrolled ? 'blur(20px)' : 'none', WebkitBackdropFilter: scrolled ? 'blur(20px)' : 'none', borderBottom: scrolled ? '0.5px solid var(--sep)' : 'none', transition: 'background 0.2s' }}>
-        <span style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '1.0625rem', fontWeight: 700, color: 'var(--ink)', opacity: scrolled ? 1 : 0, transition: 'opacity 0.2s' }}>氧气捏捏</span>
-        <button onClick={() => setSheetOpen(true)} style={{ width: 32, height: 32, borderRadius: 16, background: 'var(--accent)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(92,139,110,0.4)' }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="#fff" strokeWidth="2.2" strokeLinecap="round"/></svg>
-        </button>
-      </div>
-
-      {/* Scroll body */}
-      <div className="no-scrollbar" onScroll={e => setScrolled(e.currentTarget.scrollTop > 40)} style={{ position: 'absolute', top: 54, left: 0, right: 0, bottom: 83, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
-
+      <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
         <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
-          {/* Large title */}
-          <div style={{ padding: '28px 20px 4px', flexShrink: 0 }}>
-            <p style={{ fontSize: '0.75rem', color: 'var(--ink-3)', marginBottom: 6 }}>氧气捏捏</p>
-            <h1 style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '2rem', fontWeight: 900, color: 'var(--ink)', lineHeight: 1.3 }}>今天听了什么呀</h1>
-          </div>
-
           {episodes.length === 0 ? (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: 40 }}>
               <EmptyState onAdd={() => setSheetOpen(true)} />
