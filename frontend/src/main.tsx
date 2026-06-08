@@ -21,8 +21,8 @@ createRoot(document.getElementById('root')!).render(
     </svg>
 
     <div id="phone-shell">
-      {/* Dynamic Island */}
-      <div style={{
+      {/* Dynamic Island — desktop preview only (hidden on real phones) */}
+      <div className="device-chrome" style={{
         position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
         width: 120, height: 34, borderRadius: 17,
         background: '#000', zIndex: 100, pointerEvents: 'none',
@@ -41,8 +41,8 @@ createRoot(document.getElementById('root')!).render(
         </BrowserRouter>
       </div>
 
-      {/* Home indicator */}
-      <div style={{
+      {/* Home indicator — desktop preview only */}
+      <div className="device-chrome" style={{
         position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)',
         width: 130, height: 5, borderRadius: 3,
         background: 'rgba(43,56,38,0.2)', zIndex: 100, pointerEvents: 'none',

@@ -37,8 +37,8 @@ export default function Home() {
   return (
     <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)' }}>
 
-      {/* Status bar */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 54, zIndex: 25, pointerEvents: 'none', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 28px 8px' }}>
+      {/* Fake status bar — desktop preview only (real phones show the OS one) */}
+      <div className="device-chrome" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 54, zIndex: 25, pointerEvents: 'none', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 28px 8px' }}>
         <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink)' }}><Clock /></span>
         <span style={{ fontSize: '0.75rem', color: 'var(--ink-3)' }}>●●●●</span>
       </div>

@@ -86,72 +86,75 @@ async def _scrape_apple(url: str) -> EpisodeMeta:
       3. Fetch RSS and find the episode (by track ID if available, else latest)
     """
     podcast_id_match = re.search(r"/id(\d+)", url)
-    episode_id = re.search(r"[?&]i=(\d+)", url)
+    episode_id_match = re.search(r"[?&]i=(\d+)", url)
 
     if not podcast_id_match:
         raise ValueError("无法从 Apple Podcasts 链接中解析播客 ID")
 
     podcast_id = podcast_id_match.group(1)
+    episode_id = episode_id_match.group(1) if episode_id_match else None
 
-    async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
-        # Step 1: get RSS feed URL from iTunes
-        itunes_url = f"https://itunes.apple.com/lookup?id={podcast_id}&country=cn"
-        resp = await client.get(itunes_url)
-        resp.raise_for_status()
-        itunes_data = resp.json()
-
-        podcast_info = next(
-            (r for r in itunes_data.get("results", []) if r.get("wrapperType") == "collection"),
-            itunes_data.get("results", [{}])[0] if itunes_data.get("results") else {}
+    async with httpx.AsyncClient(timeout=25.0, follow_redirects=True) as client:
+        # 拉取该播客的节目列表（含每集的 trackId），用于按 i= 精确匹配
+        lookup = (
+            f"https://itunes.apple.com/lookup?id={podcast_id}"
+            f"&country=cn&media=podcast&entity=podcastEpisode&limit=200"
         )
-        feed_url = podcast_info.get("feedUrl", "")
-        podcast_name = podcast_info.get("collectionName", "") or podcast_info.get("trackName", "未知播客")
+        resp = await client.get(lookup)
+        resp.raise_for_status()
+        results = resp.json().get("results", [])
 
-        if not feed_url:
-            raise ValueError(f"未能获取播客 RSS 订阅地址（播客 ID: {podcast_id}）")
+        collection = next((r for r in results if r.get("wrapperType") == "collection"), {})
+        episodes = [r for r in results if r.get("wrapperType") == "podcastEpisode"]
+        feed_url = collection.get("feedUrl", "")
 
-        # Step 2: fetch RSS
-        rss_resp = await client.get(feed_url, headers={"User-Agent": HEADERS["User-Agent"]})
-        rss_resp.raise_for_status()
+        # 按 trackId 精确匹配用户分享的那一集
+        target = None
+        if episode_id:
+            target = next((e for e in episodes if str(e.get("trackId")) == episode_id), None)
+        # 找不到（或链接没带 i=）才退回最新一集
+        if target is None and episodes:
+            target = episodes[0]
 
-    # Step 3: parse RSS
-    root = ET.fromstring(rss_resp.text)
-    ns = {"itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd"}
+        if target is None:
+            raise ValueError("未能在 iTunes 找到该节目，请确认链接有效")
 
-    items = root.findall(".//item")
-    if not items:
-        raise ValueError("RSS 中未找到节目内容")
+        # 播客名：优先集合信息，否则用这一集自带的 collectionName
+        podcast_name = (collection.get("collectionName")
+                        or collection.get("trackName")
+                        or target.get("collectionName")
+                        or "未知播客")
 
-    # Try to match by episode_id (Apple's episode GUID sometimes contains the trackId)
-    target_item = None
-    if episode_id:
-        eid = episode_id.group(1)
-        for item in items:
-            guid = (item.findtext("guid") or "").strip()
-            if eid in guid:
-                target_item = item
-                break
+        title = target.get("trackName") or "未知标题"
+        description = re.sub(r"<[^>]+>", "", target.get("description") or "").strip()
 
-    # Fall back to first (latest) episode
-    if target_item is None:
-        target_item = items[0]
+        # 时长：trackTimeMillis → H:MM:SS
+        duration = None
+        ms = target.get("trackTimeMillis")
+        if isinstance(ms, int) and ms > 0:
+            s = ms // 1000
+            h, m, sec = s // 3600, (s % 3600) // 60, s % 60
+            duration = f"{h}:{m:02d}:{sec:02d}" if h else f"{m}:{sec:02d}"
 
-    title = target_item.findtext("title") or "未知标题"
-    # Prefer <itunes:summary> or <description>
-    description = (
-        target_item.findtext("itunes:summary", namespaces=ns)
-        or target_item.findtext("description")
-        or ""
-    )
-    # Strip HTML tags from description
-    description = re.sub(r"<[^>]+>", "", description).strip()
-
-    # Duration
-    duration_raw = target_item.findtext("itunes:duration", namespaces=ns)
-    duration = duration_raw if duration_raw else None
+        # iTunes 描述太短时，用 RSS 里同名那集的正文补全（仅补描述，标题仍用精确匹配的）
+        if len(description) < 60 and feed_url:
+            try:
+                rss = await client.get(feed_url, headers={"User-Agent": HEADERS["User-Agent"]})
+                root = ET.fromstring(rss.text)
+                ns = {"itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd"}
+                for item in root.findall(".//item"):
+                    if (item.findtext("title") or "").strip() == title.strip():
+                        body = (item.findtext("itunes:summary", namespaces=ns)
+                                or item.findtext("description") or "")
+                        body = re.sub(r"<[^>]+>", "", body).strip()
+                        if len(body) > len(description):
+                            description = body
+                        break
+            except Exception:
+                pass
 
     if not description:
-        raise ValueError("RSS 中未找到节目描述内容")
+        description = title  # 至少让 AI 有标题可分析
 
     return EpisodeMeta(url=url, podcast_name=podcast_name,
                        title=title, description=description, duration=duration)
