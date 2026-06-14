@@ -31,10 +31,22 @@ function IconHistory(active: boolean) {
   )
 }
 
+function IconThink(active: boolean) {
+  const c = active ? 'var(--accent)' : 'var(--ink-3)'
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      {/* 羽毛笔：输出/思考 */}
+      <path d="M5 19c0-4 3-9 9-12 2-1 4-1 4-1s0 2-1 4c-3 6-8 9-12 9z" stroke={c} strokeWidth="1.8" strokeLinejoin="round" fill={active ? 'rgba(92,139,110,0.12)' : 'none'}/>
+      <path d="M5 19s2-3 5-5" stroke={c} strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
 const tabs = [
-  { path: '/',        label: '今日',    renderIcon: IconListen  },
-  { path: '/shelf',   label: '知识藏',  renderIcon: IconShelf   },
-  { path: '/history', label: '听过的',  renderIcon: IconHistory },
+  { path: '/',            label: '今日',    renderIcon: IconListen  },
+  { path: '/shelf',       label: '知识藏',  renderIcon: IconShelf   },
+  { path: '/reflections', label: '我的思考', renderIcon: IconThink   },
+  { path: '/history',     label: '听过的',  renderIcon: IconHistory },
 ]
 
 export default function BottomNav() {

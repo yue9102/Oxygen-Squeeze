@@ -7,16 +7,27 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+import uuid
+from pathlib import Path as _Path
+from fastapi import UploadFile, File, Form, Request
+from fastapi.responses import FileResponse as _FileResponse
+
 from scraper import scrape_episode
 from analyzer import analyze_episode
-from transcriber import submit_transcription, check_transcription
+from transcriber import submit_transcription, check_transcription, transcribe_short
+from reflection_skill import refine_reflection
 from storage import (
     save_episode, get_episodes, get_episode,
     create_processing_episode, update_episode,
     get_topics, get_topic_detail, reassign_insight, delete_episode,
+    save_reflection, get_reflections, delete_reflection,
 )
 from models import EpisodeMeta
 from taxonomy import TAXONOMY
+
+# 用户语音回答的临时音频目录（供 DashScope 通过公网 URL 拉取）
+_TMP_AUDIO = _Path(__file__).parent.parent / "data" / "tmp_audio"
+_TMP_AUDIO.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title="氧气捏捏 API", version="1.1.0")
 
@@ -113,6 +124,66 @@ async def get_ep(episode_id: str):
 @app.delete("/api/episodes/{episode_id}")
 def del_ep(episode_id: str):
     ok = delete_episode(episode_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Not found")
+    return {"ok": True}
+
+
+# ── Reflections（我的思考：语音回答 → 结构化沉淀） ──────────────
+
+@app.get("/api/answer-audio/{name}")
+def serve_answer_audio(name: str):
+    """供 DashScope 拉取用户上传的语音回答音频。"""
+    safe = _Path(name).name  # 防目录穿越
+    f = _TMP_AUDIO / safe
+    if not f.is_file():
+        raise HTTPException(status_code=404, detail="Not found")
+    return _FileResponse(f, media_type="audio/mp4")
+
+
+@app.post("/api/reflections")
+async def create_reflection(
+    request: Request,
+    audio: UploadFile = File(...),
+    episode_id: str = Form(...),
+    episode_title: str = Form(""),
+    podcast_name: str = Form(""),
+    question: str = Form(...),
+):
+    """用户语音回答 → 转录 → 结构化整理 → 保存。"""
+    ext = (audio.filename or "rec").split(".")[-1][:5] or "m4a"
+    token = f"{uuid.uuid4().hex}.{ext}"
+    fpath = _TMP_AUDIO / token
+    try:
+        fpath.write_bytes(await audio.read())
+        # 构造公网可达 URL 供 DashScope 拉取（强制 https + 用 Host 头，兼容 HF 反代）
+        host = os.environ.get("PUBLIC_HOST") or request.headers.get("host", "")
+        audio_url = f"https://{host}/api/answer-audio/{token}"
+        raw_text = await transcribe_short(audio_url)
+        if not raw_text.strip():
+            raise HTTPException(status_code=422, detail="没听清你的回答，再说一次试试")
+        refined = await refine_reflection(question, raw_text, podcast_name, episode_title)
+        ref = save_reflection(episode_id, episode_title, question, raw_text, refined)
+        return {"ok": True, "reflection": ref}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        try:
+            fpath.unlink(missing_ok=True)
+        except Exception:
+            pass
+
+
+@app.get("/api/reflections")
+def list_reflections(episode_id: str = ""):
+    return get_reflections(episode_id or None)
+
+
+@app.delete("/api/reflections/{reflection_id}")
+def del_reflection(reflection_id: str):
+    ok = delete_reflection(reflection_id)
     if not ok:
         raise HTTPException(status_code=404, detail="Not found")
     return {"ok": True}

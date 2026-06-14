@@ -9,6 +9,7 @@ from taxonomy import ANCHORS, LEGACY_CATEGORY_MAP, LEGACY_ANCHOR_RENAME, coerce
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 EPISODES_FILE = DATA_DIR / "episodes.json"
+REFLECTIONS_FILE = DATA_DIR / "reflections.json"
 
 
 def _resolve(ins: dict) -> tuple[str, str]:
@@ -39,6 +40,8 @@ def _init():
     DATA_DIR.mkdir(exist_ok=True)
     if not EPISODES_FILE.exists():
         EPISODES_FILE.write_text("[]", encoding="utf-8")
+    if not REFLECTIONS_FILE.exists():
+        REFLECTIONS_FILE.write_text("[]", encoding="utf-8")
 
 
 def _read(path: Path):
@@ -240,4 +243,44 @@ def delete_episode(episode_id: str) -> bool:
     if len(new_list) == len(episodes):
         return False
     _write(EPISODES_FILE, new_list)
+    return True
+
+
+# ── Reflections（我的思考 / 内容输出） ───────────────────────
+
+def save_reflection(episode_id: str, episode_title: str, question: str,
+                    raw_text: str, refined: dict) -> dict:
+    _init()
+    items = _read(REFLECTIONS_FILE)
+    ref = {
+        "id": str(uuid.uuid4())[:8],
+        "episode_id": episode_id,
+        "episode_title": episode_title,
+        "question": question,
+        "raw_text": raw_text,
+        "conclusion": refined.get("conclusion", ""),
+        "points": refined.get("points", []),
+        "open_questions": refined.get("open_questions", []),
+        "created_at": datetime.now().isoformat(),
+    }
+    items.insert(0, ref)
+    _write(REFLECTIONS_FILE, items)
+    return ref
+
+
+def get_reflections(episode_id: Optional[str] = None) -> List[dict]:
+    _init()
+    items = _read(REFLECTIONS_FILE)
+    if episode_id:
+        items = [r for r in items if r.get("episode_id") == episode_id]
+    return items
+
+
+def delete_reflection(reflection_id: str) -> bool:
+    _init()
+    items = _read(REFLECTIONS_FILE)
+    new_list = [r for r in items if r["id"] != reflection_id]
+    if len(new_list) == len(items):
+        return False
+    _write(REFLECTIONS_FILE, new_list)
     return True

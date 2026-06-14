@@ -7,6 +7,7 @@ import Cards       from './pages/Cards'
 import Shelf       from './pages/Shelf'
 import TopicDetail from './pages/TopicDetail'
 import History     from './pages/History'
+import Reflections from './pages/Reflections'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -35,6 +36,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/cards/:id" element={<Cards />} />
             <Route path="/shelf"                          element={<Shelf />} />
             <Route path="/shelf/topic/:anchor/:subtopic"  element={<TopicDetail />} />
+            <Route path="/reflections" element={<Reflections />} />
             <Route path="/history"   element={<History />} />
             <Route path="*"          element={<Navigate to="/" replace />} />
           </Routes>

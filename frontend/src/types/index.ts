@@ -70,3 +70,15 @@ export interface TopicDetail {
 }
 
 export type TopicsResponse = Record<Anchor, TopicCard[]>
+
+export interface Reflection {
+  id: string
+  episode_id: string
+  episode_title: string
+  question: string
+  raw_text: string
+  conclusion: string
+  points: string[]
+  open_questions: string[]
+  created_at: string
+}

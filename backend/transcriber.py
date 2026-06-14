@@ -6,6 +6,7 @@
 后端不常驻后台任务，而是在客户端读取 episode 时顺带检查转录是否完成。
 """
 import os
+import asyncio
 from typing import Optional, Tuple
 import httpx
 
@@ -81,3 +82,18 @@ async def check_transcription(task_id: str) -> Tuple[str, Optional[str]]:
                 parts.append(text)
         full = "\n".join(parts).strip()
         return ("done", full) if full else ("error", None)
+
+
+async def transcribe_short(audio_url: str, max_wait_s: int = 120) -> str:
+    """短音频（用户语音回答）：提交并内联轮询直到完成，返回转录文本。"""
+    task_id = await submit_transcription(audio_url)
+    waited = 0
+    while waited < max_wait_s:
+        status, text = await check_transcription(task_id)
+        if status == "done":
+            return text or ""
+        if status == "error":
+            raise RuntimeError("语音转录失败")
+        await asyncio.sleep(3)
+        waited += 3
+    raise RuntimeError("语音转录超时")

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { apiUrl } from '../api'
+import VoiceAnswerSheet from '../components/VoiceAnswerSheet'
 import type { Episode } from '../types'
 
 type CardData =
@@ -66,6 +67,7 @@ export default function Cards() {
   const [episode, setEpisode] = useState<Episode | null>(null)
   const [idx, setIdx] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [answerQuestion, setAnswerQuestion] = useState<string | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -179,7 +181,7 @@ export default function Cards() {
             style={{ width: '100%' }}
             className="card-grain"
           >
-            <PaperCard card={cards[idx]} />
+            <PaperCard card={cards[idx]} onAnswer={setAnswerQuestion} />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -203,6 +205,19 @@ export default function Cards() {
         <button onClick={goNext} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 12px', opacity: 0.6 }}>
           <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="rgba(92,139,110,0.8)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </button>
+      </div>
+
+      {/* 语音回答 sheet */}
+      <div onClick={e => e.stopPropagation()}>
+        <VoiceAnswerSheet
+          open={answerQuestion !== null}
+          onClose={() => setAnswerQuestion(null)}
+          episodeId={episode.id}
+          episodeTitle={episode.title}
+          podcastName={episode.podcast_name}
+          question={answerQuestion ?? ''}
+          onSaved={() => {}}
+        />
       </div>
     </div>
   )
@@ -289,7 +304,7 @@ function Processing({ episode, onClose }: { episode: Episode; onClose: () => voi
   )
 }
 
-function PaperCard({ card }: { card: CardData }) {
+function PaperCard({ card, onAnswer }: { card: CardData; onAnswer?: (q: string) => void }) {
   const ep = card.ep
 
   if (card.kind === 'cover') return (
@@ -347,12 +362,20 @@ function PaperCard({ card }: { card: CardData }) {
       <div style={RULE} />
       {ep.reflection_questions.map((q, i) => (
         <div key={i}>
-          <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+          <div style={{ display: 'flex', gap: 12, marginBottom: 8 }}>
             <span style={{ fontFamily: "'Special Elite',monospace", fontSize: '0.5rem', color: 'var(--accent)', paddingTop: 3, opacity: 0.7, flexShrink: 0 }}>
               {['一','二','三'][i] ?? i+1}
             </span>
             <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.875rem', color: '#2B3826', lineHeight: 1.7, flex: 1 }}>{q}</p>
           </div>
+          {/* 语音回答入口 */}
+          <button
+            onClick={e => { e.stopPropagation(); onAnswer?.(q) }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginLeft: 24, marginBottom: 12, background: 'rgba(92,139,110,0.1)', border: '1px solid rgba(92,139,110,0.22)', borderRadius: 16, padding: '5px 12px', cursor: 'pointer' }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" fill="var(--accent)"/><path d="M6 11a6 6 0 0012 0M12 17v3" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round"/></svg>
+            <span style={{ fontSize: '0.6875rem', color: 'var(--accent)', fontWeight: 600, fontFamily: '-apple-system,system-ui,sans-serif' }}>语音回答</span>
+          </button>
           {i < ep.reflection_questions.length - 1 && <div style={RULE_DOT} />}
         </div>
       ))}
