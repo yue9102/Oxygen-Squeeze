@@ -72,6 +72,21 @@ export default function Cards() {
     fetch(apiUrl(`/api/episodes/${id}`)).then(r => r.json()).then(ep => { setEpisode(ep); setLoading(false) })
   }, [id])
 
+  // 沉浸阅读页：把根背景也设成苔绿，使状态栏区域与页面同色铺满（无浅色带）
+  useEffect(() => {
+    const root = document.documentElement, body = document.body
+    const prevRoot = root.style.background, prevBody = body.style.background
+    const prevTheme = document.querySelector('meta[name="theme-color"]')?.getAttribute('content') ?? null
+    root.style.background = '#E5ECE6'
+    body.style.background = '#E5ECE6'
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#E5ECE6')
+    return () => {
+      root.style.background = prevRoot
+      body.style.background = prevBody
+      if (prevTheme) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', prevTheme)
+    }
+  }, [])
+
   if (loading || !episode) {
     return (
       <div style={{ position: 'absolute', inset: 0, background: 'var(--reader-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

@@ -76,7 +76,7 @@
 
 @layer components {
   /* Paper grain — for knowledge cards only */
-  .card-grain { position: relative; overflow: hidden; }
+  .card-grain { position: relative; overflow: hidden; border-radius: 20px; }
   .card-grain::before {
     content: '';
     position: absolute; inset: 0;
