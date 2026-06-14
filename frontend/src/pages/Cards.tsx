@@ -210,12 +210,43 @@ export default function Cards() {
 
 const PROCESSING_STEPS = ['正在听这期播客…', '逐字记下来…', '帮你想想重点…']
 
+/** "H:MM:SS" / "MM:SS" → 秒 */
+function durationToSec(d?: string): number {
+  if (!d) return 0
+  const p = d.split(':').map(Number)
+  if (p.some(isNaN)) return 0
+  return p.length === 3 ? p[0]*3600 + p[1]*60 + p[2] : p.length === 2 ? p[0]*60 + p[1] : 0
+}
+function fmtMMSS(sec: number): string {
+  const m = Math.floor(sec / 60), s = sec % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
 function Processing({ episode, onClose }: { episode: Episode; onClose: () => void }) {
   const [step, setStep] = useState(0)
+  const [elapsed, setElapsed] = useState(0)  // 秒
+
+  // 已等待时长：从这期创建时间算起（重新打开也准）
+  useEffect(() => {
+    const start = new Date(episode.created_at).getTime()
+    const tick = () => setElapsed(Math.max(0, Math.round((Date.now() - start) / 1000)))
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [episode.created_at])
+
   useEffect(() => {
     const id = setInterval(() => setStep(s => (s + 1) % PROCESSING_STEPS.length), 2600)
     return () => clearInterval(id)
   }, [])
+
+  // 粗估转录耗时：约音频时长的 12%，最少 2 分钟（范围给宽，避免误导）
+  const audioSec = durationToSec(episode.duration)
+  const estSec = Math.max(120, Math.round(audioSec * 0.12))
+  const progress = Math.min(0.95, elapsed / estSec)  // 永远不到 100%，完成时整页切换
+  const estText = audioSec
+    ? `预计 ${Math.max(2, Math.round(estSec / 60 * 0.6))}–${Math.round(estSec / 60 * 1.6)} 分钟`
+    : '通常几分钟'
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: 'var(--reader-bg)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 40px', textAlign: 'center' }}>
@@ -238,8 +269,21 @@ function Processing({ episode, onClose }: { episode: Episode; onClose: () => voi
           {PROCESSING_STEPS[step]}
         </motion.p>
       </AnimatePresence>
-      <p style={{ fontSize: '0.75rem', color: '#8A9A84', marginTop: 14, lineHeight: 1.6 }}>
-        整段语音转录要一两分钟<br/>转好会自动出卡片，可以先去忙别的
+
+      {/* 进度条 + 已等待时长 */}
+      <div style={{ width: '100%', maxWidth: 220, marginTop: 18 }}>
+        <div style={{ height: 5, borderRadius: 3, background: 'rgba(92,139,110,0.15)', overflow: 'hidden' }}>
+          <motion.div animate={{ width: `${progress * 100}%` }} transition={{ duration: 0.8, ease: 'easeOut' }}
+            style={{ height: '100%', borderRadius: 3, background: 'var(--accent)' }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: '0.6875rem', color: '#8A9A84', fontFamily: '-apple-system,system-ui,sans-serif' }}>
+          <span>已等待 {fmtMMSS(elapsed)}</span>
+          <span>{estText}</span>
+        </div>
+      </div>
+
+      <p style={{ fontSize: '0.75rem', color: '#8A9A84', marginTop: 16, lineHeight: 1.6 }}>
+        长节目转录要十几分钟<br/>可以先退出去忙别的，转好自动出卡片
       </p>
     </div>
   )
