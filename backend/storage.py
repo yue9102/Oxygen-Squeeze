@@ -52,18 +52,55 @@ def _write(path: Path, data):
 # ── Episode CRUD ────────────────────────────────────────────
 
 def save_episode(url: str, result: AnalysisResult) -> Episode:
+    """直接保存一条已分析完成的 episode（无音频、走简介总结时用）。"""
     _init()
     episodes = _read(EPISODES_FILE)
-
     episode = Episode(
         id=str(uuid.uuid4())[:8],
         url=url,
         created_at=datetime.now().isoformat(),
+        status="done",
         **result.model_dump(),
     )
     episodes.insert(0, episode.model_dump())
     _write(EPISODES_FILE, episodes)
     return episode
+
+
+def create_processing_episode(url: str, meta, task_id: str) -> Episode:
+    """创建一条「转录中」的占位 episode（有音频、走转录流程时用）。"""
+    _init()
+    episodes = _read(EPISODES_FILE)
+    episode = Episode(
+        id=str(uuid.uuid4())[:8],
+        url=url,
+        created_at=datetime.now().isoformat(),
+        podcast_name=meta.podcast_name,
+        title=meta.title,
+        duration=meta.duration,
+        description=meta.description,
+        audio_url=meta.audio_url,
+        task_id=task_id,
+        status="transcribing",
+    )
+    episodes.insert(0, episode.model_dump())
+    _write(EPISODES_FILE, episodes)
+    return episode
+
+
+def update_episode(episode_id: str, **fields) -> Optional[dict]:
+    """更新某条 episode 的若干字段。"""
+    _init()
+    episodes = _read(EPISODES_FILE)
+    hit = None
+    for e in episodes:
+        if e["id"] == episode_id:
+            e.update(fields)
+            hit = e
+            break
+    if hit:
+        _write(EPISODES_FILE, episodes)
+    return hit
 
 
 def get_episodes(limit: int = 100) -> List[dict]:

@@ -8,6 +8,7 @@ class EpisodeMeta(BaseModel):
     title: str
     description: str
     duration: Optional[str] = None
+    audio_url: Optional[str] = None   # mp3 直链，用于语音转录
 
 
 class Insight(BaseModel):
@@ -45,7 +46,13 @@ class Episode(BaseModel):
     podcast_name: str
     title: str
     duration: Optional[str] = None
-    summary: str
-    key_insights: List[Insight]
-    reflection_questions: List[str]
-    framework_updates: Dict[str, List[str]]
+    summary: str = ""
+    key_insights: List[Insight] = []
+    reflection_questions: List[str] = []
+    framework_updates: Dict[str, List[str]] = {}
+    # 异步转录流程
+    status: str = "done"               # transcribing | analyzing | done | error
+    task_id: Optional[str] = None      # DashScope 转录任务 ID
+    audio_url: Optional[str] = None
+    description: str = ""              # 节目简介（无音频时兜底用）
+    error: Optional[str] = None

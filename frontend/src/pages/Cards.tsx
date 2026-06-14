@@ -69,7 +69,25 @@ export default function Cards() {
 
   useEffect(() => {
     if (!id) return
-    fetch(apiUrl(`/api/episodes/${id}`)).then(r => r.json()).then(ep => { setEpisode(ep); setLoading(false) })
+    let timer: ReturnType<typeof setTimeout>
+    let cancelled = false
+
+    async function poll() {
+      try {
+        const ep = await fetch(apiUrl(`/api/episodes/${id}`)).then(r => r.json())
+        if (cancelled) return
+        setEpisode(ep)
+        setLoading(false)
+        // 转录中 → 继续轮询（后端在读取时推进转录→分析）
+        if (ep.status === 'transcribing' || ep.status === 'analyzing') {
+          timer = setTimeout(poll, 5000)
+        }
+      } catch {
+        if (!cancelled) timer = setTimeout(poll, 6000)
+      }
+    }
+    poll()
+    return () => { cancelled = true; clearTimeout(timer) }
   }, [id])
 
   // 沉浸阅读页：把根背景也设成苔绿，使状态栏区域与页面同色铺满（无浅色带）
@@ -95,6 +113,21 @@ export default function Cards() {
             <path d="M18 4C11.37 4 6 9.37 6 16v7a3 3 0 003 3h1.5a3 3 0 003-3v-4a3 3 0 00-3-3H9v-1.5a9 9 0 0118 0V16h-1.5a3 3 0 00-3 3v4a3 3 0 003 3H27a3 3 0 003-3v-7c0-6.63-5.37-12-12-12z" fill="var(--accent)"/>
           </svg>
         </div>
+      </div>
+    )
+  }
+
+  // 转录中 / 分析中：展示处理态（轮询中）
+  if (episode.status === 'transcribing' || episode.status === 'analyzing') {
+    return <Processing episode={episode} onClose={() => nav('/')} />
+  }
+  // 出错
+  if (episode.status === 'error') {
+    return (
+      <div style={{ position: 'absolute', inset: 0, background: 'var(--reader-bg)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 40px', textAlign: 'center', gap: 14 }}>
+        <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '1.0625rem', fontWeight: 700, color: '#4A5A46' }}>这一期没能处理成功</p>
+        <p style={{ fontSize: '0.8125rem', color: '#8A9A84', lineHeight: 1.6 }}>可能是音频暂时取不到，<br/>回首页删掉重新贴一次试试</p>
+        <button onClick={() => nav('/')} style={{ marginTop: 8, background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 20, padding: '10px 24px', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer' }}>回首页</button>
       </div>
     )
   }
@@ -171,6 +204,43 @@ export default function Cards() {
           <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="rgba(92,139,110,0.8)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </button>
       </div>
+    </div>
+  )
+}
+
+const PROCESSING_STEPS = ['正在听这期播客…', '逐字记下来…', '帮你想想重点…']
+
+function Processing({ episode, onClose }: { episode: Episode; onClose: () => void }) {
+  const [step, setStep] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setStep(s => (s + 1) % PROCESSING_STEPS.length), 2600)
+    return () => clearInterval(id)
+  }, [])
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: 'var(--reader-bg)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 40px', textAlign: 'center' }}>
+      <button onClick={onClose} style={{ position: 'absolute', top: 'calc(var(--safe-top) + 4px)', left: 20, width: 34, height: 34, borderRadius: 17, background: 'rgba(92,139,110,0.18)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="rgba(92,139,110,0.9)" strokeWidth="1.8" strokeLinecap="round"/></svg>
+      </button>
+
+      <div className="breathe" style={{ width: 64, height: 64, borderRadius: 32, background: 'rgba(92,139,110,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 22 }}>
+        <svg width="30" height="30" viewBox="0 0 36 36" fill="none">
+          <path d="M18 4C11.37 4 6 9.37 6 16v7a3 3 0 003 3h1.5a3 3 0 003-3v-4a3 3 0 00-3-3H9v-1.5a9 9 0 0118 0V16h-1.5a3 3 0 00-3 3v4a3 3 0 003 3H27a3 3 0 003-3v-7c0-6.63-5.37-12-12-12z" fill="var(--accent)"/>
+        </svg>
+      </div>
+
+      <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '1.0625rem', fontWeight: 700, color: '#2B3826', marginBottom: 8 }}>
+        {episode.title}
+      </p>
+      <AnimatePresence mode="wait">
+        <motion.p key={step} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.4 }}
+          style={{ fontSize: '0.875rem', color: 'var(--accent)', fontWeight: 600 }}>
+          {PROCESSING_STEPS[step]}
+        </motion.p>
+      </AnimatePresence>
+      <p style={{ fontSize: '0.75rem', color: '#8A9A84', marginTop: 14, lineHeight: 1.6 }}>
+        整段语音转录要一两分钟<br/>转好会自动出卡片，可以先去忙别的
+      </p>
     </div>
   )
 }

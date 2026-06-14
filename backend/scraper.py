@@ -44,6 +44,7 @@ async def _scrape_xiaoyuzhou(url: str) -> EpisodeMeta:
     description = og("description") or ""
     podcast_name = og("site_name") or ""
     duration = None
+    audio_url = og("audio") or ""   # 小宇宙页面通常有 og:audio
 
     for script in soup.find_all("script", type="application/ld+json"):
         try:
@@ -55,6 +56,10 @@ async def _scrape_xiaoyuzhou(url: str) -> EpisodeMeta:
                     description = data["description"]
                 if "duration" in data:
                     duration = data["duration"]
+                # 音频直链：associatedMedia.contentUrl 或 contentUrl
+                if not audio_url:
+                    media = data.get("associatedMedia") or {}
+                    audio_url = media.get("contentUrl") or data.get("contentUrl") or ""
         except Exception:
             pass
 
@@ -69,8 +74,8 @@ async def _scrape_xiaoyuzhou(url: str) -> EpisodeMeta:
     if not description:
         raise ValueError("未能获取播客内容描述，请检查链接是否有效")
 
-    return EpisodeMeta(url=url, podcast_name=podcast_name,
-                       title=title, description=description, duration=duration)
+    return EpisodeMeta(url=url, podcast_name=podcast_name, title=title,
+                       description=description, duration=duration, audio_url=audio_url or None)
 
 
 # ── Apple Podcasts ──────────────────────────────────────────
@@ -156,8 +161,11 @@ async def _scrape_apple(url: str) -> EpisodeMeta:
     if not description:
         description = title  # 至少让 AI 有标题可分析
 
-    return EpisodeMeta(url=url, podcast_name=podcast_name,
-                       title=title, description=description, duration=duration)
+    # 音频直链：iTunes 的 podcastEpisode 直接带 episodeUrl
+    audio_url = target.get("episodeUrl") or target.get("previewUrl")
+
+    return EpisodeMeta(url=url, podcast_name=podcast_name, title=title,
+                       description=description, duration=duration, audio_url=audio_url)
 
 
 # ── Generic fallback ────────────────────────────────────────

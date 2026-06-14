@@ -37,6 +37,9 @@ export interface Episode {
   key_insights: Insight[]
   reflection_questions: string[]
   framework_updates: Record<string, string[]>
+  status?: 'transcribing' | 'analyzing' | 'done' | 'error'
+  audio_url?: string
+  error?: string
 }
 
 export interface TopicCard {

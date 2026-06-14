@@ -102,7 +102,11 @@ function EpisodeRow({ ep, onClick }: { ep: Episode; onClick: () => void }) {
         <div style={{ display: 'flex', gap: 5, alignItems: 'center', marginTop: 4, fontSize: '0.75rem', color: 'var(--ink-3)' }}>
           <span>{formatDate(ep.created_at)}</span>
           <span style={{ fontSize: '0.375rem' }}>●</span>
-          <span>{ep.key_insights.length} 条洞察</span>
+          {ep.status === 'transcribing' || ep.status === 'analyzing'
+            ? <span style={{ color: 'var(--accent)', fontWeight: 600 }}>转录中…</span>
+            : ep.status === 'error'
+            ? <span style={{ color: 'var(--danger)' }}>处理失败</span>
+            : <span>{ep.key_insights.length} 条洞察</span>}
         </div>
       </div>
       <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.35 }}>

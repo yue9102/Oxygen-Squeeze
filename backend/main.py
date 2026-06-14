@@ -9,10 +9,13 @@ from pydantic import BaseModel
 
 from scraper import scrape_episode
 from analyzer import analyze_episode
+from transcriber import submit_transcription, check_transcription
 from storage import (
     save_episode, get_episodes, get_episode,
+    create_processing_episode, update_episode,
     get_topics, get_topic_detail, reassign_insight, delete_episode,
 )
+from models import EpisodeMeta
 from taxonomy import TAXONOMY
 
 app = FastAPI(title="氧气捏捏 API", version="1.1.0")
@@ -50,11 +53,47 @@ def health():
 async def process_episode(req: ProcessRequest):
     try:
         meta = await scrape_episode(req.url)
+        # 有音频 → 走「语音转录」异步流程，立即返回「转录中」占位
+        if meta.audio_url:
+            task_id = await submit_transcription(meta.audio_url)
+            episode = create_processing_episode(req.url, meta, task_id)
+            return {"ok": True, "episode": episode.model_dump()}
+        # 无音频 → 退回基于简介的即时总结
         result = await analyze_episode(meta)
         episode = save_episode(req.url, result)
         return {"ok": True, "episode": episode.model_dump()}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+async def _advance_if_processing(ep: dict) -> dict:
+    """若 episode 处于转录中，查询一次任务；完成则转录→分析→落库（按需轮询，抗休眠）。"""
+    if ep.get("status") != "transcribing" or not ep.get("task_id"):
+        return ep
+    try:
+        status, transcript = await check_transcription(ep["task_id"])
+    except Exception:
+        return ep  # 网络抖动，下次再试
+    if status == "running":
+        return ep
+    if status == "error":
+        return update_episode(ep["id"], status="error", error="转录失败") or ep
+    # 转录完成 → 用转录全文分析（保持 transcribing 直到落库，崩溃可自动重试恢复）
+    meta = EpisodeMeta(
+        url=ep["url"], podcast_name=ep["podcast_name"], title=ep["title"],
+        description=ep.get("description", ""), duration=ep.get("duration"),
+        audio_url=ep.get("audio_url"),
+    )
+    try:
+        result = await analyze_episode(meta, transcript=transcript)
+    except Exception as e:
+        return update_episode(ep["id"], status="error", error=str(e)[:200]) or ep
+    return update_episode(
+        ep["id"], status="done",
+        summary=result.summary,
+        key_insights=[i.model_dump() for i in result.key_insights],
+        reflection_questions=result.reflection_questions,
+    ) or ep
 
 
 @app.get("/api/episodes")
@@ -63,10 +102,11 @@ def list_episodes():
 
 
 @app.get("/api/episodes/{episode_id}")
-def get_ep(episode_id: str):
+async def get_ep(episode_id: str):
     ep = get_episode(episode_id)
     if not ep:
         raise HTTPException(status_code=404, detail="Not found")
+    ep = await _advance_if_processing(ep)
     return ep
 
 
