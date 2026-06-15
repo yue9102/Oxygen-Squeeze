@@ -147,7 +147,7 @@ export default function VoiceAnswerSheet({ open, onClose, episodeId, episodeTitl
                   <div style={{ width: 64, height: 64, borderRadius: 32, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </div>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--accent)', fontWeight: 600 }}>已沉淀到「我的思考」</p>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--accent)', fontWeight: 600 }}>已沉淀到「回响」</p>
                 </>
               )}
               {phase === 'error' && (

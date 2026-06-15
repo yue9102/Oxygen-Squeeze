@@ -30,7 +30,7 @@ export default function Profile() {
   return (
     <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
       <NavBar
-        title="我的"
+        title="关于我"
         subtitle={profile?.identity ? undefined : '设置你的身份，生成专属框架'}
         rightAction={episodes.length > 0 ? (
           <button onClick={() => setEditing(e => !e)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', fontSize: '0.9375rem', color: 'var(--accent)', fontFamily: "'Noto Serif SC',serif", fontWeight: 600 }}>
@@ -71,7 +71,7 @@ export default function Profile() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, margin: '12px 16px 0' }}>
           <StatCard n={stats?.episodes ?? 0} label="听过" unit="期" />
           <StatCard n={stats?.insights ?? 0} label="沉淀知识点" unit="个" />
-          <StatCard n={stats?.reflections ?? 0} label="我的思考" unit="条" />
+          <StatCard n={stats?.reflections ?? 0} label="回响" unit="条" />
         </div>
 
         {/* 听过的列表 */}

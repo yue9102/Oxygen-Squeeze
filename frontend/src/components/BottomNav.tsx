@@ -43,10 +43,10 @@ function IconMe(active: boolean) {
 }
 
 const tabs = [
-  { path: '/',            label: '今日',   renderIcon: IconListen  },
-  { path: '/shelf',       label: '知识藏', renderIcon: IconShelf   },
-  { path: '/reflections', label: '思考',   renderIcon: IconThink   },
-  { path: '/profile',     label: '我的',   renderIcon: IconMe      },
+  { path: '/',            label: '在听', renderIcon: IconListen  },
+  { path: '/shelf',       label: '沉淀', renderIcon: IconShelf   },
+  { path: '/reflections', label: '回响', renderIcon: IconThink   },
+  { path: '/profile',     label: '我的', renderIcon: IconMe      },
 ]
 
 export default function BottomNav() {

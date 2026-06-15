@@ -22,8 +22,8 @@ export default function Reflections() {
   return (
     <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
       <NavBar
-        title="我的思考"
-        subtitle={items.length > 0 ? `${items.length} 条沉淀下来的思考` : '把听到的，说成自己的'}
+        title="听完的回响"
+        subtitle={items.length > 0 ? `${items.length} 条听完后的回响` : '把听到的，说成自己的'}
       />
 
       <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 0' }}>
@@ -124,9 +124,9 @@ function Empty() {
         </svg>
       </div>
       <div>
-        <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '1rem', fontWeight: 700, color: '#4A5A46' }}>还没有思考</p>
+        <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '1rem', fontWeight: 700, color: '#4A5A46' }}>还没有回响</p>
         <p style={{ fontSize: '0.8125rem', color: '#8A9A84', marginTop: 6, lineHeight: 1.6 }}>
-          在播客卡片的「值得想一想」里<br/>用语音回答，思考会沉淀到这里
+          在播客卡片的「值得想一想」里<br/>用语音回答，回响会沉淀到这里
         </p>
       </div>
     </div>

@@ -25,7 +25,7 @@ export default function Shelf() {
     <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
 
       <NavBar
-        title="知识书架"
+        title="沉淀下来的"
         subtitle={totalCount > 0 ? `${totalCount} 个话题在生长` : '你听过的，都在这里慢慢生长'}
       />
 
