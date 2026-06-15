@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { fetchTopicDetail } from '../api'
 import type { TopicDetail, TopicInsight } from '../types'
-import { ANCHOR_COLOR } from '../types'
+import { anchorColor } from '../types'
 
 export default function TopicDetail() {
   const { anchor: anchorParam, subtopic: subParam } = useParams<{ anchor: string; subtopic: string }>()
@@ -22,7 +22,7 @@ export default function TopicDetail() {
       .catch(() => setLoading(false))
   }, [anchorName, subName])
 
-  const color = detail ? (ANCHOR_COLOR[detail.anchor] ?? ANCHOR_COLOR['AI认知']) : ANCHOR_COLOR['AI认知']
+  const color = anchorColor(detail?.anchor ?? anchorName)
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>

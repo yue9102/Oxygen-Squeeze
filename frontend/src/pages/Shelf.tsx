@@ -4,8 +4,8 @@ import { motion } from 'framer-motion'
 import { fetchTopics } from '../api'
 import BottomNav from '../components/BottomNav'
 import NavBar    from '../components/NavBar'
-import type { TopicCard, TopicsResponse, Anchor } from '../types'
-import { ANCHORS, ANCHOR_COLOR } from '../types'
+import type { TopicCard, TopicsResponse } from '../types'
+import { anchorColor } from '../types'
 
 export default function Shelf() {
   const nav = useNavigate()
@@ -18,7 +18,8 @@ export default function Shelf() {
       .catch(() => setLoading(false))
   }, [])
 
-  const totalCount = topics ? ANCHORS.reduce((s, a) => s + (topics[a]?.length ?? 0), 0) : 0
+  const anchorNames = topics ? Object.keys(topics) : []
+  const totalCount = topics ? anchorNames.reduce((s, a) => s + (topics[a]?.length ?? 0), 0) : 0
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
@@ -44,10 +45,11 @@ export default function Shelf() {
           <EmptyShelf />
         ) : (
           <div style={{ paddingTop: 8 }}>
-            {ANCHORS.map(anchor => (
+            {anchorNames.map((anchor) => (
               <AnchorSection
                 key={anchor}
                 anchor={anchor}
+                color={anchorColor(anchor)}
                 cards={topics?.[anchor] ?? []}
                 onCardClick={(sub) => nav(`/shelf/topic/${encodeURIComponent(anchor)}/${encodeURIComponent(sub)}`)}
               />
@@ -62,13 +64,12 @@ export default function Shelf() {
   )
 }
 
-function AnchorSection({ anchor, cards, onCardClick }: {
-  anchor: Anchor
+function AnchorSection({ anchor, color, cards, onCardClick }: {
+  anchor: string
+  color: { bg: string; text: string; dot: string }
   cards: TopicCard[]
   onCardClick: (subtopic: string) => void
 }) {
-  const color = ANCHOR_COLOR[anchor]
-
   return (
     <section style={{ marginBottom: 26 }}>
       {/* Section header */}

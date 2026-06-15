@@ -5,11 +5,12 @@ from pathlib import Path
 from typing import Optional, List
 
 from models import Episode, AnalysisResult
-from taxonomy import ANCHORS, LEGACY_CATEGORY_MAP, LEGACY_ANCHOR_RENAME, coerce
+from taxonomy import anchors as _anchors, LEGACY_CATEGORY_MAP, LEGACY_ANCHOR_RENAME, coerce
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 EPISODES_FILE = DATA_DIR / "episodes.json"
 REFLECTIONS_FILE = DATA_DIR / "reflections.json"
+PROFILE_FILE = DATA_DIR / "profile.json"
 
 
 def _resolve(ins: dict) -> tuple[str, str]:
@@ -164,12 +165,11 @@ def get_topics() -> dict:
                 "pm_relevance": ins.get("pm_relevance", ""),
             })
 
-    result: dict[str, list] = {a: [] for a in ANCHORS}
+    result: dict[str, list] = {a: [] for a in _anchors()}
 
     for bucket in buckets.values():
         anchor = bucket["anchor"]
-        if anchor not in result:
-            continue
+        result.setdefault(anchor, [])  # 容纳旧数据里不在当前体系的大类
         days = _days_ago(bucket["last_date"])
         result[anchor].append({
             "name": bucket["name"],
@@ -182,7 +182,7 @@ def get_topics() -> dict:
             "preview": bucket["insights"][0]["headline"] if bucket["insights"] else "",
         })
 
-    for a in ANCHORS:
+    for a in result:
         result[a].sort(key=lambda x: x["last_date"], reverse=True)
 
     return result
@@ -284,3 +284,36 @@ def delete_reflection(reflection_id: str) -> bool:
         return False
     _write(REFLECTIONS_FILE, new_list)
     return True
+
+
+# ── User profile（用户画像 + 个性化框架） ───────────────────
+
+def get_profile() -> Optional[dict]:
+    _init()
+    if not PROFILE_FILE.exists():
+        return None
+    try:
+        return json.loads(PROFILE_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def save_profile(profile: dict) -> dict:
+    _init()
+    profile["updated_at"] = datetime.now().isoformat()
+    _write(PROFILE_FILE, profile)
+    return profile
+
+
+def get_stats() -> dict:
+    """数据激励：听过几期、沉淀多少知识点、多少条思考。"""
+    _init()
+    episodes = _read(EPISODES_FILE)
+    reflections = _read(REFLECTIONS_FILE)
+    done = [e for e in episodes if e.get("status", "done") == "done"]
+    insight_count = sum(len(e.get("key_insights", [])) for e in done)
+    return {
+        "episodes": len(done),
+        "insights": insight_count,
+        "reflections": len(reflections),
+    }

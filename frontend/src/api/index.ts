@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { Episode, TopicsResponse, TopicDetail, Reflection } from '../types'
+import type { Episode, TopicsResponse, TopicDetail, Reflection, Profile, Stats } from '../types'
 
 // 部署好的后端地址（APK 离线包默认指向它；可被 VITE_API_BASE 覆盖）
 const DEPLOYED_BACKEND = 'https://nico9800000-oxygen-squeeze.hf.space'
@@ -73,4 +73,20 @@ export async function fetchReflections(episodeId?: string): Promise<Reflection[]
 
 export async function deleteReflection(id: string): Promise<void> {
   await http.delete(`/reflections/${id}`)
+}
+
+// ── Profile / Stats（用户主题页 + 个性化框架） ──
+export async function fetchProfile(): Promise<Profile> {
+  const { data } = await http.get<Profile>('/profile')
+  return data
+}
+
+export async function saveProfile(p: { identity: string; role: string; focus: string[] }): Promise<Profile> {
+  const { data } = await http.post<{ ok: boolean; profile: Profile }>('/profile', p, { timeout: 60000 })
+  return data.profile
+}
+
+export async function fetchStats(): Promise<Stats> {
+  const { data } = await http.get<Stats>('/stats')
+  return data
 }

@@ -16,14 +16,16 @@ from scraper import scrape_episode
 from analyzer import analyze_episode
 from transcriber import submit_transcription, check_transcription, transcribe_short
 from reflection_skill import refine_reflection
+from framework_gen import generate_framework
 from storage import (
     save_episode, get_episodes, get_episode,
     create_processing_episode, update_episode,
     get_topics, get_topic_detail, reassign_insight, delete_episode,
     save_reflection, get_reflections, delete_reflection,
+    get_profile, save_profile, get_stats,
 )
 from models import EpisodeMeta
-from taxonomy import TAXONOMY
+from taxonomy import current_taxonomy
 
 # 用户语音回答的临时音频目录（供 DashScope 通过公网 URL 拉取）
 _TMP_AUDIO = _Path(__file__).parent.parent / "data" / "tmp_audio"
@@ -193,8 +195,42 @@ def del_reflection(reflection_id: str):
 
 @app.get("/api/taxonomy")
 def taxonomy():
-    """返回固定的 4 大类 + 各自子类列表。"""
-    return TAXONOMY
+    """返回当前生效的（个性化）大类 + 子类列表。"""
+    return current_taxonomy()
+
+
+# ── User profile（用户画像 + 个性化框架 + 数据激励） ──────────
+
+class ProfileRequest(BaseModel):
+    identity: str
+    role: str = ""
+    focus: list[str] = []
+
+
+@app.get("/api/profile")
+def read_profile():
+    """返回用户画像；未设置返回 {exists:false}。"""
+    p = get_profile()
+    return p if p else {"exists": False}
+
+
+@app.post("/api/profile")
+async def set_profile(req: ProfileRequest):
+    """保存画像并据此生成专属知识框架。"""
+    try:
+        anchors = await generate_framework(req.identity, req.role, req.focus)
+        profile = save_profile({
+            "identity": req.identity, "role": req.role,
+            "focus": req.focus, "anchors": anchors,
+        })
+        return {"ok": True, "profile": profile}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/stats")
+def stats():
+    return get_stats()
 
 
 @app.get("/api/topics")

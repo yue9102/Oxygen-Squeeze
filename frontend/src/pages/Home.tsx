@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import BottomNav from '../components/BottomNav'
 import NavBar    from '../components/NavBar'
 import UrlSheet  from '../components/UrlSheet'
-import { apiUrl } from '../api'
+import { apiUrl, fetchProfile } from '../api'
 import type { Episode } from '../types'
 
 function formatDate(iso: string) {
@@ -22,6 +22,11 @@ export default function Home() {
 
   function load() { fetch(apiUrl('/api/episodes')).then(r => r.json()).then(setEpisodes).catch(() => {}) }
   useEffect(load, [])
+
+  // 首次进入：没有画像 → 引导设置
+  useEffect(() => {
+    fetchProfile().then(p => { if (p.exists === false) nav('/onboarding', { replace: true }) }).catch(() => {})
+  }, [nav])
 
   function onDone(id: string) { setSheetOpen(false); load(); setTimeout(() => nav(`/cards/${id}`), 320) }
 

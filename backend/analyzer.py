@@ -3,7 +3,8 @@ import json
 from typing import Optional
 from openai import AsyncOpenAI
 from models import EpisodeMeta, AnalysisResult, Insight
-from taxonomy import TAXONOMY, coerce
+from taxonomy import current_taxonomy, coerce
+from storage import get_profile
 
 
 def _get_client() -> AsyncOpenAI:
@@ -14,28 +15,30 @@ def _get_client() -> AsyncOpenAI:
 
 
 def _taxonomy_menu() -> str:
-    lines = []
-    for anchor, subs in TAXONOMY.items():
-        lines.append(f"- {anchor}：{ '、'.join(subs) }")
-    return "\n".join(lines)
+    return "\n".join(f"- {anchor}：{'、'.join(subs)}" for anchor, subs in current_taxonomy().items())
 
 
-SYSTEM_PROMPT = f"""你是一个帮助 AI 产品经理提炼播客认知的智识助手。
+def _build_system_prompt() -> str:
+    prof = get_profile() or {}
+    who = prof.get("identity") or "一位通过播客提升认知的学习者"
+    role = prof.get("role") or ""
+    focus = "、".join(prof.get("focus", [])) if prof.get("focus") else ""
+    persona = f"用户画像：{who}" + (f"；角色：{role}" if role else "") + (f"；关注方向：{focus}" if focus else "") + "。"
+    return f"""你是一个帮助用户从播客中提炼认知的智识助手。
 
-用户画像：研二学生，工业设计转型 AI PM，具身智能实验室实习，熟悉 ASR/LLM/TTS 链路、Multi-Agent、多模态交互。目标是建立自己的 AI 认知框架，面向未来的产品方向（不只是具身智能）。
+{persona}请始终结合该用户的身份与关注点来提炼洞察、写"对TA的意义"和反思问题。
 
-知识分类体系（固定的 4 大类，每类下有固定子类）——每条洞察必须归入「一个大类 + 一个子类」：
+知识分类体系（为该用户定制的固定大类，每类下有固定子类）——每条洞察必须归入「一个大类 + 一个子类」：
 {_taxonomy_menu()}
 
 归类原则：
-- 每条洞察只归一个最主要的大类，不要重复归类。判断这条内容「主要」在讲什么：技术本身 → AI认知；某个行业/公司应用 → 行业知识；如何做产品 → 产品思维；宏观趋势或赚钱逻辑 → 趋势与商业
-- 例：「具身智能公司的融资动向」归到 行业知识/具身智能；「大模型推理成本下降」归到 AI认知/训练与推理；「AI 产品该怎么设计交互」归到 产品思维/交互体验
-- subtopic 必须从所属大类的固定子类里选，不要自创
-- 如果实在无法归入任何子类，subtopic 填「其他」
+- 每条洞察只归一个最主要的大类，不重复归类；判断这条内容"主要"在讲什么
+- subtopic 必须从所属大类给定的子类里选，不要自创
+- 实在无法归入时，subtopic 填「其他」
 
 分析原则：
 - 洞察要有具体判断，不泛泛而谈
-- 反思问题要触发真正的思考，结合用户实际工作场景"""
+- 反思问题要触发真正思考，结合用户的身份与关注点"""
 
 
 def _build_prompt(meta: EpisodeMeta, transcript: Optional[str] = None) -> str:
@@ -59,13 +62,13 @@ def _build_prompt(meta: EpisodeMeta, transcript: Optional[str] = None) -> str:
     {{
       "headline": "洞察标题（15字以内，要有判断性）",
       "body": "展开说明（80字以内）",
-      "pm_relevance": "对 AI PM 的具体意义（50字以内）",
-      "anchor": "四个大类之一",
-      "subtopic": "该大类下的固定子类之一"
+      "pm_relevance": "对该用户（结合其身份/关注）的具体意义（50字以内）",
+      "anchor": "上面给定的大类之一",
+      "subtopic": "该大类下给定的子类之一"
     }}
   ],
   "reflection_questions": [
-    "反思问题1（结合用户工作场景）",
+    "反思问题1（结合用户的身份与关注）",
     "反思问题2",
     "反思问题3"
   ]
@@ -82,7 +85,7 @@ async def analyze_episode(meta: EpisodeMeta, transcript: Optional[str] = None) -
     response = await _get_client().chat.completions.create(
         model="deepseek-chat",
         messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": _build_system_prompt()},
             {"role": "user",   "content": _build_prompt(meta, transcript)},
         ],
         temperature=0.7,

@@ -1,20 +1,23 @@
-export type Anchor = 'AI认知' | '行业知识' | '产品思维' | '趋势与商业'
+// 大类现在因人而异（由后端按画像生成），所以是动态字符串
+export type Anchor = string
 
-export const ANCHORS: Anchor[] = ['AI认知', '行业知识', '产品思维', '趋势与商业']
+type AnchorColor = { bg: string; text: string; dot: string }
 
-/** 大类下的固定子类（与后端 taxonomy.py 保持一致，前端用于「重新归类」选择器） */
-export const TAXONOMY: Record<Anchor, string[]> = {
-  'AI认知':    ['大模型', 'Agent', '多模态', '训练与推理', '评测与对齐', '开源生态'],
-  '行业知识':  ['具身智能', '教育', '医疗健康', '金融', '消费应用', '内容创作'],
-  '产品思维':  ['产品设计', '交互体验', 'PM方法论', '用户增长', '组织与协作'],
-  '趋势与商业': ['技术趋势', '商业模式', '市场格局', '投资融资', '政策监管'],
-}
+// 大类配色调色板，按出现顺序循环分配（苔绿/赭石/靛蓝/陶土/紫灰/橄榄）
+const ANCHOR_PALETTE: AnchorColor[] = [
+  { bg: 'rgba(92,139,110,0.12)', text: '#4A7A5E', dot: '#5C8B6E' },
+  { bg: 'rgba(139,110,60,0.12)', text: '#7A5E30', dot: '#8B6E3C' },
+  { bg: 'rgba(60,90,139,0.12)',  text: '#3A5880', dot: '#3C5A8B' },
+  { bg: 'rgba(139,70,44,0.12)',  text: '#7A3C24', dot: '#8B4A2C' },
+  { bg: 'rgba(110,80,130,0.12)', text: '#5E4080', dot: '#6E4C8B' },
+  { bg: 'rgba(100,120,60,0.12)', text: '#566A2E', dot: '#6E823C' },
+]
 
-export const ANCHOR_COLOR: Record<Anchor, { bg: string; text: string; dot: string }> = {
-  'AI认知':   { bg: 'rgba(92,139,110,0.12)',  text: '#4A7A5E', dot: '#5C8B6E' },
-  '行业知识':  { bg: 'rgba(139,110,60,0.12)',  text: '#7A5E30', dot: '#8B6E3C' },
-  '产品思维':  { bg: 'rgba(60,90,139,0.12)',   text: '#3A5880', dot: '#3C5A8B' },
-  '趋势与商业':{ bg: 'rgba(139,70,44,0.12)',   text: '#7A3C24', dot: '#8B4A2C' },
+/** 按大类名哈希取配色（同名永远同色，Shelf 与详情页一致） */
+export function anchorColor(name: string): AnchorColor {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0
+  return ANCHOR_PALETTE[h % ANCHOR_PALETTE.length]
 }
 
 export interface Insight {
@@ -70,6 +73,20 @@ export interface TopicDetail {
 }
 
 export type TopicsResponse = Record<Anchor, TopicCard[]>
+
+export interface Profile {
+  identity: string
+  role: string
+  focus: string[]
+  anchors: Record<string, string[]>
+  exists?: boolean
+}
+
+export interface Stats {
+  episodes: number
+  insights: number
+  reflections: number
+}
 
 export interface Reflection {
   id: string

@@ -21,16 +21,6 @@ function IconShelf(active: boolean) {
   )
 }
 
-function IconHistory(active: boolean) {
-  const c = active ? 'var(--accent)' : 'var(--ink-3)'
-  return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="8.5" stroke={c} strokeWidth="2" fill="none"/>
-      <path d="M12 7.5V12l3 2.5" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  )
-}
-
 function IconThink(active: boolean) {
   const c = active ? 'var(--accent)' : 'var(--ink-3)'
   return (
@@ -42,11 +32,21 @@ function IconThink(active: boolean) {
   )
 }
 
+function IconMe(active: boolean) {
+  const c = active ? 'var(--accent)' : 'var(--ink-3)'
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="8.5" r="3.6" stroke={c} strokeWidth="1.8" fill={active ? 'rgba(92,139,110,0.12)' : 'none'}/>
+      <path d="M4.5 20a7.5 7.5 0 0115 0" stroke={c} strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
 const tabs = [
-  { path: '/',            label: '今日',    renderIcon: IconListen  },
-  { path: '/shelf',       label: '知识藏',  renderIcon: IconShelf   },
-  { path: '/reflections', label: '我的思考', renderIcon: IconThink   },
-  { path: '/history',     label: '听过的',  renderIcon: IconHistory },
+  { path: '/',            label: '今日',   renderIcon: IconListen  },
+  { path: '/shelf',       label: '知识藏', renderIcon: IconShelf   },
+  { path: '/reflections', label: '思考',   renderIcon: IconThink   },
+  { path: '/profile',     label: '我的',   renderIcon: IconMe      },
 ]
 
 export default function BottomNav() {
