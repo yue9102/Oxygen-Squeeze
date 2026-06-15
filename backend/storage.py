@@ -1,8 +1,13 @@
 import json
 import uuid
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from pathlib import Path
 from typing import Optional, List
+
+
+def _now_iso() -> str:
+    """带时区的 UTC 时间戳（前端按本地正确解析，避免 8 小时偏差）。"""
+    return datetime.now(timezone.utc).isoformat()
 
 from models import Episode, AnalysisResult
 from taxonomy import anchors as _anchors, LEGACY_CATEGORY_MAP, LEGACY_ANCHOR_RENAME, coerce
@@ -62,7 +67,7 @@ def save_episode(url: str, result: AnalysisResult) -> Episode:
     episode = Episode(
         id=str(uuid.uuid4())[:8],
         url=url,
-        created_at=datetime.now().isoformat(),
+        created_at=_now_iso(),
         status="done",
         **result.model_dump(),
     )
@@ -78,7 +83,7 @@ def create_processing_episode(url: str, meta, task_id: str) -> Episode:
     episode = Episode(
         id=str(uuid.uuid4())[:8],
         url=url,
-        created_at=datetime.now().isoformat(),
+        created_at=_now_iso(),
         podcast_name=meta.podcast_name,
         title=meta.title,
         duration=meta.duration,
@@ -261,7 +266,7 @@ def save_reflection(episode_id: str, episode_title: str, question: str,
         "conclusion": refined.get("conclusion", ""),
         "points": refined.get("points", []),
         "open_questions": refined.get("open_questions", []),
-        "created_at": datetime.now().isoformat(),
+        "created_at": _now_iso(),
     }
     items.insert(0, ref)
     _write(REFLECTIONS_FILE, items)
@@ -300,7 +305,7 @@ def get_profile() -> Optional[dict]:
 
 def save_profile(profile: dict) -> dict:
     _init()
-    profile["updated_at"] = datetime.now().isoformat()
+    profile["updated_at"] = _now_iso()
     _write(PROFILE_FILE, profile)
     return profile
 

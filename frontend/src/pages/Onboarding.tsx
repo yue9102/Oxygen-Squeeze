@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { saveProfile } from '../api'
+import { saveProfile, fetchProfile } from '../api'
 
 export default function Onboarding() {
   const nav = useNavigate()
@@ -10,6 +10,19 @@ export default function Onboarding() {
   const [focusText, setFocusText] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [err, setErr] = useState('')
+  const [canGoBack, setCanGoBack] = useState(false)
+
+  // 已有画像（从「我的」进来调整）→ 预填并显示返回键；首次引导则不显示
+  useEffect(() => {
+    fetchProfile().then(p => {
+      if (p.exists !== false) {
+        setCanGoBack(true)
+        setIdentity(p.identity || '')
+        setRole(p.role || '')
+        setFocusText((p.focus || []).join('、'))
+      }
+    }).catch(() => {})
+  }, [])
 
   const canSubmit = identity.trim().length >= 2 && !submitting
 
@@ -30,6 +43,16 @@ export default function Onboarding() {
     <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <div style={{ height: 'var(--safe-top)' }} className="statusbar-safe" />
 
+      {/* 返回键：仅在从「我的」进入调整时显示 */}
+      {canGoBack && (
+        <div style={{ flexShrink: 0, height: 44, display: 'flex', alignItems: 'center', padding: '0 16px' }}>
+          <button onClick={() => nav('/profile')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px 4px 0', display: 'flex', alignItems: 'center', gap: 5 }}>
+            <svg width="9" height="16" viewBox="0 0 9 16" fill="none"><path d="M8 1L1 8l7 7" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <span style={{ fontSize: '0.9375rem', color: 'var(--accent)', fontFamily: "'Noto Serif SC',serif", fontWeight: 600 }}>我的</span>
+          </button>
+        </div>
+      )}
+
       <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 40px' }}>
         {/* 头部 */}
         <div style={{ width: 52, height: 52, borderRadius: 26, background: 'rgba(92,139,110,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
@@ -39,7 +62,7 @@ export default function Onboarding() {
           先认识一下你
         </h1>
         <p style={{ fontSize: '0.8125rem', color: 'var(--ink-2)', lineHeight: 1.7, marginBottom: 28 }}>
-          氧气捏捏会根据你的身份和关注，<br/>为你**专属生成**一套知识框架——<br/>你听的每期播客，都会沉淀进属于你的结构里。
+          氧气捏捏会根据你的身份和关注，<br/>为你<span style={{ color: 'var(--accent)', fontWeight: 700 }}>专属生成</span>一套知识框架——<br/>你听的每期播客，都会沉淀进属于你的结构里。
         </p>
 
         <Field label="你是谁？" hint="一句话介绍你的身份、背景">
