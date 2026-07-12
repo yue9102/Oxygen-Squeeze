@@ -5,9 +5,1163 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>哩哩｜AI 知识整理与表达训练产品</title>
   <meta name="description" content="哩哩项目展示：把播客、口述回答等零碎输入整理为个人知识体系，并通过反思与表达训练完成内化。" />
-  <meta http-equiv="refresh" content="0; url=lili.html" />
+  <style>
+    :root {
+      --bg: #f4f7f2;
+      --paper: #ffffff;
+      --paper-2: #edf2ea;
+      --ink: #24301f;
+      --muted: #65745f;
+      --faint: #9aaa94;
+      --line: rgba(92, 139, 110, 0.18);
+      --green: #5c8b6e;
+      --blue: #3c5a8b;
+      --rust: #8b4a2c;
+      --gold: #8b6e3c;
+      --shadow: 0 18px 52px rgba(43, 56, 38, 0.12);
+      --soft-shadow: 0 10px 28px rgba(43, 56, 38, 0.08);
+      color-scheme: light;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 18% 4%, rgba(92,139,110,0.12), transparent 34%),
+        linear-gradient(180deg, rgba(237, 242, 234, 0.78), rgba(244, 247, 242, 0) 420px),
+        var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Segoe UI", sans-serif;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    .wrap { width: min(1160px, calc(100% - 36px)); margin: 0 auto; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(244, 247, 242, 0.88);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px) saturate(1.2);
+      -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    }
+
+    .nav {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 50%, var(--green) 0 28%, rgba(92,139,110,0.22) 29% 58%, transparent 59%),
+        var(--paper-2);
+      border: 1px solid var(--line);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav-links a:hover { color: var(--ink); }
+
+    .hero {
+      padding: 76px 0 54px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.58fr);
+      gap: 54px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    h1 {
+      margin: 18px 0 18px;
+      font-family: "Noto Serif SC", "Songti SC", serif;
+      font-size: 76px;
+      line-height: 1.02;
+      letter-spacing: 0;
+      max-width: 760px;
+      white-space: nowrap;
+    }
+
+    .lead {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      font-weight: 700;
+      font-size: 14px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--soft-shadow);
+      border-color: rgba(92, 139, 110, 0.36);
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+
+    .hero-visual {
+      width: min(300px, 100%);
+      justify-self: center;
+      background: rgba(255,255,255,0.64);
+      border: 1px solid var(--line);
+      border-radius: 36px;
+      padding: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-visual img {
+      display: block;
+      width: 100%;
+      border-radius: 28px;
+      background: var(--bg);
+    }
+
+    section {
+      padding: 50px 0;
+      scroll-margin-top: 84px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-family: "Noto Serif SC", "Songti SC", serif;
+      font-size: 40px;
+      line-height: 1.16;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .section-head p {
+      max-width: 560px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .positioning {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .position-card,
+    .panel,
+    .model-card,
+    .flow,
+    .demo-box {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .position-card {
+      padding: 24px;
+      min-height: 240px;
+    }
+
+    .position-card h3,
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 19px;
+      line-height: 1.35;
+    }
+
+    .position-card p,
+    .panel p,
+    .panel li {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .position-card p,
+    .panel p { margin: 0; }
+
+    .mini-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .mini-step {
+      background: #f8faf6;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 96px;
+    }
+
+    .mini-step strong {
+      display: block;
+      color: var(--green);
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    .mini-step span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .panel {
+      min-height: 210px;
+      padding: 20px;
+    }
+
+    .panel .tag {
+      display: inline-flex;
+      color: var(--green);
+      background: rgba(92,139,110,0.1);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    ul { margin: 10px 0 0; padding-left: 20px; }
+
+    .flow {
+      padding: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(130px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfcfa;
+      min-height: 142px;
+    }
+
+    .step span {
+      display: inline-flex;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      background: rgba(92,139,110,0.12);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .app-showcase {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .app-feature {
+      padding: 30px;
+      border-top: 1px solid var(--line);
+    }
+
+    .app-feature:first-child { border-top: 0; }
+
+    .feature-bar {
+      display: grid;
+      grid-template-columns: auto auto 1fr;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .feature-index {
+      color: var(--green);
+      font-family: "Noto Serif SC", "Songti SC", serif;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .feature-bar h3 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    .feature-rule {
+      height: 1px;
+      background: rgba(92, 139, 110, 0.28);
+    }
+
+    .feature-layout {
+      display: grid;
+      grid-template-columns: minmax(230px, 0.62fr) minmax(0, 1.38fr);
+      gap: 30px;
+      align-items: center;
+    }
+
+    .app-feature.reverse .feature-copy { order: 2; }
+    .app-feature.reverse .device-composition { order: 1; }
+    .app-feature.reverse .feature-layout {
+      grid-template-columns: minmax(0, 1.38fr) minmax(230px, 0.62fr);
+    }
+
+    .feature-kicker {
+      margin: 0 0 8px;
+      color: var(--rust);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .feature-copy h4 {
+      margin: 0 0 10px;
+      font-family: "Noto Serif SC", "Songti SC", serif;
+      font-size: 26px;
+      line-height: 1.28;
+    }
+
+    .feature-copy > p:not(.feature-kicker) {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .feature-points {
+      display: grid;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .feature-point {
+      position: relative;
+      padding-left: 18px;
+    }
+
+    .feature-point::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .feature-point strong {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 13px;
+    }
+
+    .feature-point span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .device-composition {
+      position: relative;
+      height: 500px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(rgba(92,139,110,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(92,139,110,0.08) 1px, transparent 1px),
+        #edf3ee;
+      background-size: 42px 42px;
+    }
+
+    .device-composition::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(92,139,110,0.12);
+      border-radius: 6px;
+      pointer-events: none;
+    }
+
+    .product-device {
+      position: absolute;
+      z-index: 2;
+      aspect-ratio: 393 / 852;
+      overflow: hidden;
+      border: 7px solid #111711;
+      border-radius: 28px;
+      background: #111711;
+      box-shadow: 0 22px 44px rgba(31, 42, 28, 0.22);
+    }
+
+    .product-device img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+    }
+
+    .composition-identity .device-primary {
+      width: 205px;
+      left: 25%;
+      top: 20px;
+      transform: rotate(-2deg);
+    }
+
+    .composition-identity .device-secondary {
+      width: 158px;
+      right: 12%;
+      top: 92px;
+      transform: rotate(3deg);
+    }
+
+    .composition-ingest .device-primary {
+      width: 202px;
+      left: 35%;
+      top: 18px;
+    }
+
+    .composition-ingest .device-secondary {
+      width: 150px;
+      left: 7%;
+      top: 82px;
+      transform: rotate(-4deg);
+    }
+
+    .composition-ingest .device-tertiary {
+      width: 150px;
+      right: 5%;
+      top: 90px;
+      transform: rotate(4deg);
+    }
+
+    .composition-library .device-primary {
+      width: 202px;
+      left: 35%;
+      top: 20px;
+    }
+
+    .composition-library .device-secondary {
+      width: 148px;
+      left: 7%;
+      top: 94px;
+      transform: rotate(-4deg);
+    }
+
+    .composition-library .device-tertiary {
+      width: 148px;
+      right: 5%;
+      top: 88px;
+      transform: rotate(4deg);
+    }
+
+    .composition-reflection .device-primary {
+      width: 218px;
+      left: 35%;
+      top: 18px;
+      transform: rotate(-1deg);
+    }
+
+    .composition-reflection .device-secondary {
+      width: 156px;
+      left: 6%;
+      top: 94px;
+      transform: rotate(-4deg);
+    }
+
+    .composition-reflection .device-tertiary {
+      width: 148px;
+      right: 5%;
+      top: 92px;
+      transform: rotate(4deg);
+    }
+
+    .device-callout {
+      position: absolute;
+      z-index: 3;
+      width: 138px;
+      padding-top: 8px;
+      border-top: 1px solid var(--blue);
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .device-callout::before {
+      content: "";
+      position: absolute;
+      top: -4px;
+      left: 0;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--blue);
+    }
+
+    .callout-top-left::before,
+    .callout-bottom-left::before {
+      left: auto;
+      right: 0;
+    }
+
+    .callout-top-left { left: 5%; top: 54px; }
+    .callout-top-right { right: 4%; top: 32px; }
+    .callout-bottom-left { left: 4%; bottom: 18px; }
+    .callout-bottom-right { right: 4%; bottom: 24px; }
+
+    .model-card { overflow: hidden; }
+
+    .model-row {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
+      border-top: 1px solid var(--line);
+    }
+
+    .model-row:first-child { border-top: 0; }
+
+    .model-key,
+    .model-value {
+      padding: 16px;
+      font-size: 14px;
+    }
+
+    .model-key {
+      background: #f8faf6;
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .model-value { color: var(--muted); }
+
+    .demo-box {
+      background:
+        linear-gradient(135deg, rgba(92,139,110,0.12), rgba(60,90,139,0.1)),
+        var(--paper);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .demo-box h2 {
+      margin: 0 0 8px;
+      font-family: "Noto Serif SC", "Songti SC", serif;
+      font-size: 30px;
+      line-height: 1.2;
+    }
+
+    .demo-box p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 720px;
+    }
+
+    footer {
+      padding: 36px 0 48px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .positioning,
+      .demo-box {
+        grid-template-columns: 1fr;
+      }
+
+      .workflow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+      .section-head {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      h1 { font-size: 60px; }
+      .section-head h2 { font-size: 36px; }
+
+      .feature-layout {
+        grid-template-columns: minmax(210px, 0.52fr) minmax(0, 1.48fr);
+        gap: 22px;
+      }
+
+      .app-feature.reverse .feature-layout {
+        grid-template-columns: minmax(0, 1.48fr) minmax(210px, 0.52fr);
+      }
+
+      .device-composition { height: 460px; }
+      .composition-identity .device-primary { left: 19%; }
+      .composition-identity .device-secondary { right: 7%; }
+      .composition-ingest .device-primary,
+      .composition-library .device-primary,
+      .composition-reflection .device-primary { left: 31%; }
+      .device-callout { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .wrap { width: min(100% - 28px, 1160px); }
+      .nav { height: auto; padding: 14px 0; align-items: start; }
+      .nav-links { display: none; }
+      .hero { padding-top: 48px; }
+      h1 { font-size: 42px; }
+      .section-head h2 { font-size: 28px; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; }
+      .mini-steps,
+      .workflow {
+        grid-template-columns: 1fr;
+      }
+
+      .app-feature { padding: 20px 16px 24px; }
+      .feature-bar { margin-bottom: 18px; }
+      .feature-layout,
+      .app-feature.reverse .feature-layout { grid-template-columns: 1fr; }
+      .app-feature.reverse .feature-copy,
+      .app-feature.reverse .device-composition { order: initial; }
+      .feature-copy h4 { font-size: 23px; }
+      .feature-points {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-top: 18px;
+      }
+
+      .feature-points.three-points .feature-point:last-child {
+        grid-column: 1 / -1;
+      }
+
+      .device-composition {
+        height: 360px;
+        grid-row: 1;
+      }
+
+      .product-device {
+        border-width: 5px;
+        border-radius: 21px;
+      }
+
+      .product-device img { border-radius: 15px; }
+
+      .composition-identity .device-primary {
+        width: 142px;
+        left: 14%;
+        top: 18px;
+      }
+
+      .composition-identity .device-secondary {
+        width: 110px;
+        right: 10%;
+        top: 74px;
+      }
+
+      .composition-ingest .device-primary,
+      .composition-library .device-primary,
+      .composition-reflection .device-primary {
+        width: 136px;
+        left: calc(50% - 68px);
+        top: 14px;
+      }
+
+      .composition-ingest .device-secondary,
+      .composition-library .device-secondary,
+      .composition-reflection .device-secondary {
+        width: 100px;
+        left: 3%;
+        top: 86px;
+      }
+
+      .composition-ingest .device-tertiary,
+      .composition-library .device-tertiary,
+      .composition-reflection .device-tertiary {
+        width: 100px;
+        right: 3%;
+        top: 82px;
+      }
+
+      .model-row { grid-template-columns: 1fr; }
+      .model-key { border-bottom: 1px solid var(--line); }
+    }
+  </style>
 </head>
 <body>
-  <p><a href="lili.html">打开哩哩项目展示页</a></p>
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="#top" aria-label="哩哩">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>哩哩</span>
+      </a>
+      <nav class="nav-links" aria-label="页面导航">
+        <a href="#position">产品定位</a>
+        <a href="#workflow">AI 工作流</a>
+        <a href="#app">真实页面</a>
+        <a href="#model">模型策略</a>
+        <a href="#demo">在线体验</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="wrap hero">
+      <div>
+        <div class="eyebrow">播客知识内化产品</div>
+        <h1>哩哩</h1>
+        <p class="lead">
+          哩哩帮助用户把播客、口述回答等零碎内容理一理，沉淀为个人知识框架、知识卡片、反思问题和结构化表达。
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" href="https://nico9800000-oxygen-squeeze.hf.space" target="_blank" rel="noopener noreferrer">打开在线体验</a>
+          <a class="btn" href="https://huggingface.co/spaces/nico9800000/oxygen-squeeze" target="_blank" rel="noopener noreferrer">查看部署页面</a>
+          <a class="btn" href="#output">查看输出训练链路</a>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-label="知识卡片页面预览">
+        <img src="case-assets/screenshots/04-card-insight.jpg" alt="哩哩知识卡片页面截图" />
+      </div>
+    </div>
+
+    <section id="position">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>个人知识整理</h2>
+          <p>产品面向高频知识输入场景，核心任务是把零碎内容纳入个人知识框架，并通过反思与表达训练完成内化。</p>
+        </div>
+        <div class="positioning">
+          <article class="position-card">
+            <h3>产品定位</h3>
+            <p>
+              面向有持续知识输入与整理需求的人群，基于用户身份生成专属知识框架，再把播客等长内容沉淀为卡片、反思问题和表达训练材料。
+            </p>
+            <div class="mini-steps">
+              <div class="mini-step">
+                <strong>输入</strong>
+                <span>播客链接、音频、转录文本、口述回答</span>
+              </div>
+              <div class="mini-step">
+                <strong>内化</strong>
+                <span>知识卡片、分类沉淀、反思问题</span>
+              </div>
+              <div class="mini-step">
+                <strong>输出</strong>
+                <span>语音回答、结构化表达、原话对比</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="position-card">
+            <h3>适用人群跨职业角色</h3>
+            <p>
+              AI 学习者、产品经理、投资人、研究生、设计师都可以使用。差异不在于产品入口，而在于每个人的身份、角色和关注方向会生成不同知识框架。
+            </p>
+            <ul>
+              <li>用户决定“我是谁”和“我关心什么”。</li>
+              <li>输入内容决定具体知识材料。</li>
+              <li>AI 工作流负责把内容沉淀进个人框架，并推动用户输出。</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflow">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>AI 工作流</h2>
+          <p>模型能力被拆解为身份理解、内容转写、知识加工和表达整理四个环节，共同支撑知识整理链路。</p>
+        </div>
+        <div class="workflow">
+          <article class="panel">
+            <span class="tag">01</span>
+            <h3>身份与框架生成</h3>
+            <p>用户输入身份、角色和关注方向，AI 生成 anchors + subtopics，作为未来知识沉淀的容器。</p>
+          </article>
+          <article class="panel">
+            <span class="tag">02</span>
+            <h3>内容转写</h3>
+            <p>抓取播客元信息和音频链接，再把长音频转为文字，让后续分析不只依赖节目简介。</p>
+          </article>
+          <article class="panel">
+            <span class="tag">03</span>
+            <h3>知识点深度加工</h3>
+            <p>DeepSeek 从文本中提炼 summary、key insights、对用户的意义，并强制归入知识框架。</p>
+          </article>
+          <article class="panel">
+            <span class="tag">04</span>
+            <h3>表达训练与对比</h3>
+            <p>用户语音回答反思问题，AI 用金字塔原理、MECE 和批判性思维整理为结构化表达。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="flow">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>知识整理闭环</h2>
+          <p>知识内容的输入、加工、沉淀与输出验证形成连续链路，覆盖从内容导入到表达观点的完整过程。</p>
+        </div>
+        <div class="flow">
+          <div class="flow-grid" aria-label="产品流程">
+            <div class="step">
+              <span>01</span>
+              <strong>身份确定</strong>
+              <p>输入身份、角色和关注方向，确定后续知识沉淀视角。</p>
+            </div>
+            <div class="step">
+              <span>02</span>
+              <strong>生成框架</strong>
+              <p>根据用户画像生成 anchors 和 subtopics，承接长期知识积累。</p>
+            </div>
+            <div class="step">
+              <span>03</span>
+              <strong>导入内容</strong>
+              <p>贴入小宇宙或 Apple Podcasts 链接，自动抓取节目元信息。</p>
+            </div>
+            <div class="step">
+              <span>04</span>
+              <strong>音频转文字</strong>
+              <p>调用转录模型把长音频变成可分析文本，并处理等待状态。</p>
+            </div>
+            <div class="step">
+              <span>05</span>
+              <strong>卡片沉淀</strong>
+              <p>模型提炼核心总结、关键洞察和用户视角意义。</p>
+            </div>
+            <div class="step">
+              <span>06</span>
+              <strong>启发反思</strong>
+              <p>同步生成反思问题，把“听懂”推进到“想过”。</p>
+            </div>
+            <div class="step">
+              <span>07</span>
+              <strong>表达训练</strong>
+              <p>保留原始口述，并用思维框架整理为结构化表达。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="app">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>App 核心体验</h2>
+          <p>从身份建框、内容加工到知识沉淀与表达训练，真实页面串联起完整的知识整理路径。</p>
+        </div>
+
+        <div class="app-showcase">
+          <article class="app-feature">
+            <div class="feature-bar">
+              <span class="feature-index">01</span>
+              <h3>身份建框</h3>
+              <span class="feature-rule" aria-hidden="true"></span>
+            </div>
+            <div class="feature-layout">
+              <div class="feature-copy">
+                <p class="feature-kicker">Personal Context</p>
+                <h4>先定义“我是谁”</h4>
+                <p>用户输入身份、角色和关注方向，AI 据此生成长期承接知识的个人框架。</p>
+                <div class="feature-points">
+                  <div class="feature-point">
+                    <strong>身份输入</strong>
+                    <span>职业、角色与当前关注方向共同构成个人语境。</span>
+                  </div>
+                  <div class="feature-point">
+                    <strong>专属框架</strong>
+                    <span>生成 anchors 与 subtopics，决定知识如何被理解和归类。</span>
+                  </div>
+                </div>
+              </div>
+              <div class="device-composition composition-identity" aria-label="身份输入与个人资料页面组合">
+                <div class="product-device device-primary">
+                  <img src="case-assets/screenshots/01-onboarding.jpg" alt="用户身份输入与知识框架生成页面" />
+                </div>
+                <div class="product-device device-secondary">
+                  <img src="case-assets/screenshots/08-profile.jpg" alt="用户个人资料与知识框架页面" />
+                </div>
+                <span class="device-callout callout-top-left">输入身份与关注方向</span>
+                <span class="device-callout callout-bottom-right">沉淀个人知识坐标</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="app-feature reverse">
+            <div class="feature-bar">
+              <span class="feature-index">02</span>
+              <h3>内容加工</h3>
+              <span class="feature-rule" aria-hidden="true"></span>
+            </div>
+            <div class="feature-layout">
+              <div class="feature-copy">
+                <p class="feature-kicker">Podcast To Insight</p>
+                <h4>从链接到关键洞察</h4>
+                <p>播客链接进入系统后，自动完成音频抓取、转录与深度加工，把长内容压缩为可复用的知识单元。</p>
+                <div class="feature-points">
+                  <div class="feature-point">
+                    <strong>低摩擦输入</strong>
+                    <span>粘贴播客链接，自动获取节目与音频信息。</span>
+                  </div>
+                  <div class="feature-point">
+                    <strong>深度提炼</strong>
+                    <span>从完整转录中生成总结、洞察及其个人意义。</span>
+                  </div>
+                </div>
+              </div>
+              <div class="device-composition composition-ingest" aria-label="播客输入与知识卡片页面组合">
+                <div class="product-device device-secondary">
+                  <img src="case-assets/screenshots/03-card-cover.jpg" alt="播客知识卡片封面页面" />
+                </div>
+                <div class="product-device device-primary">
+                  <img src="case-assets/screenshots/02-home.jpg" alt="播客输入与最近听过页面" />
+                </div>
+                <div class="product-device device-tertiary">
+                  <img src="case-assets/screenshots/04-card-insight.jpg" alt="播客关键洞察页面" />
+                </div>
+                <span class="device-callout callout-top-right">链接识别与转录</span>
+                <span class="device-callout callout-bottom-left">卡片化提炼知识点</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="app-feature">
+            <div class="feature-bar">
+              <span class="feature-index">03</span>
+              <h3>长期沉淀</h3>
+              <span class="feature-rule" aria-hidden="true"></span>
+            </div>
+            <div class="feature-layout">
+              <div class="feature-copy">
+                <p class="feature-kicker">Knowledge Library</p>
+                <h4>让知识持续生长</h4>
+                <p>每条洞察被归入个人知识框架，并在书架与专题中持续积累，形成可检索、可复盘的长期资产。</p>
+                <div class="feature-points">
+                  <div class="feature-point">
+                    <strong>框架归类</strong>
+                    <span>知识点对应唯一 anchor 与 subtopic，减少内容散落。</span>
+                  </div>
+                  <div class="feature-point">
+                    <strong>持续复盘</strong>
+                    <span>从书架进入专题，追踪同一方向下的知识积累。</span>
+                  </div>
+                </div>
+              </div>
+              <div class="device-composition composition-library" aria-label="知识书架与专题页面组合">
+                <div class="product-device device-secondary">
+                  <img src="case-assets/screenshots/04-card-insight.jpg" alt="播客洞察知识卡片页面" />
+                </div>
+                <div class="product-device device-primary">
+                  <img src="case-assets/screenshots/05-shelf.jpg" alt="个人知识书架页面" />
+                </div>
+                <div class="product-device device-tertiary">
+                  <img src="case-assets/screenshots/06-topic-detail.jpg" alt="知识专题详情页面" />
+                </div>
+                <span class="device-callout callout-top-left">按个人框架归类</span>
+                <span class="device-callout callout-bottom-right">进入专题持续复盘</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="app-feature reverse" id="output">
+            <div class="feature-bar">
+              <span class="feature-index">04</span>
+              <h3>反思输出</h3>
+              <span class="feature-rule" aria-hidden="true"></span>
+            </div>
+            <div class="feature-layout">
+              <div class="feature-copy">
+                <p class="feature-kicker">Reflection To Expression</p>
+                <h4>从思考到清晰表达</h4>
+                <p>系统围绕播客洞察生成反思问题，用户用语音自然作答，再通过原话与结构化版本的对照训练表达。</p>
+                <div class="feature-points three-points">
+                  <div class="feature-point">
+                    <strong>启发思考</strong>
+                    <span>结合播客内容与用户身份，生成值得继续追问的问题。</span>
+                  </div>
+                  <div class="feature-point">
+                    <strong>语音回答</strong>
+                    <span>用底部录音面板降低输出门槛，先完整说出真实想法。</span>
+                  </div>
+                  <div class="feature-point">
+                    <strong>表达对比</strong>
+                    <span>同时保留原始口述与 AI 整理结果，观察结构和表达差异。</span>
+                  </div>
+                </div>
+              </div>
+              <div class="device-composition composition-reflection" aria-label="反思问题、语音回答与表达沉淀页面组合">
+                <div class="product-device device-secondary">
+                  <img src="case-assets/screenshots/10-voice-answer-screen.png" alt="真实 App 语音回答弹层页面" />
+                </div>
+                <div class="product-device device-primary">
+                  <img src="case-assets/screenshots/09-reflection-questions-screen.png" alt="真实 App 今天值得想一想页面" />
+                </div>
+                <div class="product-device device-tertiary">
+                  <img src="case-assets/screenshots/07-reflections.jpg" alt="反思与结构化表达页面" />
+                </div>
+                <span class="device-callout callout-top-right">保留原话并生成结构化表达</span>
+                <span class="device-callout callout-bottom-left">从反思问题进入语音回答</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="model">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>模型策略</h2>
+          <p>每个模型环节都对应一个明确的产品问题，保证生成结果能够进入页面、卡片、书架和表达沉淀流程。</p>
+        </div>
+        <div class="model-card" aria-label="模型策略">
+          <div class="model-row">
+            <div class="model-key">转录模型</div>
+            <div class="model-value">解决播客音频无法直接分析的问题，把长音频转换为可加工文本。</div>
+          </div>
+          <div class="model-row">
+            <div class="model-key">用户画像注入</div>
+            <div class="model-value">解决“通用摘要不贴合我”的问题，让洞察和反思问题与用户身份相关。</div>
+          </div>
+          <div class="model-row">
+            <div class="model-key">知识分类约束</div>
+            <div class="model-value">解决知识点散落的问题，每条洞察必须归入一个 anchor 和一个 subtopic。</div>
+          </div>
+          <div class="model-row">
+            <div class="model-key">结构化输出</div>
+            <div class="model-value">解决模型结果不可产品化的问题，用 JSON 输出直接驱动卡片、书架和表达沉淀页面。</div>
+          </div>
+          <div class="model-row">
+            <div class="model-key">表达整理 Skill</div>
+            <div class="model-value">解决“说出来不等于说清楚”的问题，用金字塔原理、MECE 和批判性思维整理口述回答。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo">
+      <div class="wrap">
+        <div class="demo-box">
+          <div>
+            <h2>在线体验</h2>
+            <p>
+              在线 App 可体验从身份确认、内容导入到知识卡片与表达沉淀的完整流程。
+            </p>
+          </div>
+          <div class="actions">
+            <a class="btn btn-primary" href="https://nico9800000-oxygen-squeeze.hf.space" target="_blank" rel="noopener noreferrer">进入在线 App</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      哩哩 Case Study。截图基于项目当前真实页面与演示数据生成；在线体验依赖部署服务和模型接口状态。
+    </div>
+  </footer>
 </body>
 </html>
