@@ -1,0 +1,8 @@
+{
+  "name": "lili-case-study",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "mkdir -p dist/case-assets dist/.openai && cp index.html oxygen-squeeze-case-study.html dist/ && cp -R case-assets/. dist/case-assets/ && cp .openai/hosting.json dist/.openai/hosting.json"
+  }
+}
