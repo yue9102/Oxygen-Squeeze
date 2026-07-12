@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "mkdir -p dist/case-assets dist/.openai && cp index.html oxygen-squeeze-case-study.html dist/ && cp -R case-assets/. dist/case-assets/ && cp .openai/hosting.json dist/.openai/hosting.json"
+    "build": "mkdir -p dist/case-assets dist/.openai dist/server && cp index.html oxygen-squeeze-case-study.html dist/ && cp -R case-assets/. dist/case-assets/ && cp .openai/hosting.json dist/.openai/hosting.json && cp server/index.js dist/server/index.js"
   }
 }
