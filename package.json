@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "mkdir -p dist/case-assets dist/.openai dist/server && cp index.html oxygen-squeeze-case-study.html dist/ && cp -R case-assets/. dist/case-assets/ && cp .openai/hosting.json dist/.openai/hosting.json && cp server/index.js dist/server/index.js"
+    "build": "mkdir -p dist/client/case-assets dist/.openai dist/server && cp index.html oxygen-squeeze-case-study.html dist/client/ && cp -R case-assets/. dist/client/case-assets/ && cp .openai/hosting.json dist/.openai/hosting.json && cp server/index.js dist/server/index.js"
   }
 }
