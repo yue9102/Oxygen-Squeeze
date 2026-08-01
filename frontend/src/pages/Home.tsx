@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import BottomNav from '../components/BottomNav'
 import NavBar    from '../components/NavBar'
 import UrlSheet  from '../components/UrlSheet'
-import { apiUrl, fetchProfile } from '../api'
+import { fetchEpisodes, fetchProfile } from '../api'
 import type { Episode } from '../types'
 
 function formatDate(iso: string) {
@@ -20,7 +20,7 @@ export default function Home() {
   const [episodes, setEpisodes]   = useState<Episode[]>([])
   const nav = useNavigate()
 
-  function load() { fetch(apiUrl('/api/episodes')).then(r => r.json()).then(setEpisodes).catch(() => {}) }
+  function load() { fetchEpisodes().then(setEpisodes).catch(() => {}) }
   useEffect(load, [])
 
   // 首次进入：没有画像 → 引导设置

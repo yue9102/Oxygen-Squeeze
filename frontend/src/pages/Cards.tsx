@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { apiUrl } from '../api'
+import { advanceEpisode, fetchEpisode } from '../api'
 import VoiceAnswerSheet from '../components/VoiceAnswerSheet'
 import type { Episode } from '../types'
 
@@ -71,16 +71,20 @@ export default function Cards() {
 
   useEffect(() => {
     if (!id) return
+    const episodeId = id
     let timer: ReturnType<typeof setTimeout>
     let cancelled = false
 
     async function poll() {
       try {
-        const ep = await fetch(apiUrl(`/api/episodes/${id}`)).then(r => r.json())
+        const current = await fetchEpisode(episodeId)
+        const ep = current.status === 'transcribing' || current.status === 'analyzing'
+          ? await advanceEpisode(current)
+          : current
         if (cancelled) return
         setEpisode(ep)
         setLoading(false)
-        // 转录中 → 继续轮询（后端在读取时推进转录→分析）
+        // 处理状态存于本机；轮询只请求无状态的转录/分析计算服务。
         if (ep.status === 'transcribing' || ep.status === 'analyzing') {
           timer = setTimeout(poll, 5000)
         }

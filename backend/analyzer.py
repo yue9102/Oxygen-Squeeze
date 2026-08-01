@@ -1,10 +1,11 @@
-import os
 import json
-from typing import Optional
+import os
+from typing import Any, Optional
+
 from openai import AsyncOpenAI
-from models import EpisodeMeta, AnalysisResult, Insight
-from taxonomy import current_taxonomy, coerce
-from storage import get_profile
+
+from models import AnalysisResult, EpisodeMeta, Insight
+from taxonomy import DEFAULT_TAXONOMY
 
 
 def _get_client() -> AsyncOpenAI:
@@ -14,27 +15,43 @@ def _get_client() -> AsyncOpenAI:
     return AsyncOpenAI(api_key=key, base_url="https://api.deepseek.com")
 
 
-def _taxonomy_menu() -> str:
-    return "\n".join(f"- {anchor}：{'、'.join(subs)}" for anchor, subs in current_taxonomy().items())
+def _clean_taxonomy(context: Optional[dict[str, Any]]) -> dict[str, list[str]]:
+    """仅使用请求携带的画像，服务端不读取或保存任何用户框架。"""
+    anchors = (context or {}).get("anchors", {})
+    if not isinstance(anchors, dict):
+        return DEFAULT_TAXONOMY
+
+    clean: dict[str, list[str]] = {}
+    for anchor, subtopics in anchors.items():
+        if not isinstance(anchor, str) or not anchor.strip() or not isinstance(subtopics, list):
+            continue
+        items = [item.strip() for item in subtopics if isinstance(item, str) and item.strip()]
+        if items:
+            clean[anchor.strip()] = items
+    return clean or DEFAULT_TAXONOMY
 
 
-def _build_system_prompt() -> str:
-    prof = get_profile() or {}
-    who = prof.get("identity") or "一位通过播客提升认知的学习者"
-    role = prof.get("role") or ""
-    focus = "、".join(prof.get("focus", [])) if prof.get("focus") else ""
+def _taxonomy_menu(taxonomy: dict[str, list[str]]) -> str:
+    return "\n".join(f"- {anchor}：{'、'.join(subtopics)}" for anchor, subtopics in taxonomy.items())
+
+
+def _build_system_prompt(context: Optional[dict[str, Any]], taxonomy: dict[str, list[str]]) -> str:
+    profile = context or {}
+    who = profile.get("identity") or "一位通过播客提升认知的学习者"
+    role = profile.get("role") or ""
+    focus_items = profile.get("focus") or []
+    focus = "、".join(item for item in focus_items if isinstance(item, str))
     persona = f"用户画像：{who}" + (f"；角色：{role}" if role else "") + (f"；关注方向：{focus}" if focus else "") + "。"
     return f"""你是一个帮助用户从播客中提炼认知的智识助手。
 
-{persona}请始终结合该用户的身份与关注点来提炼洞察、写"对TA的意义"和反思问题。
+{persona}请始终结合该用户的身份与关注点来提炼洞察、写“对TA的意义”和反思问题。
 
 知识分类体系（为该用户定制的固定大类，每类下有固定子类）——每条洞察必须归入「一个大类 + 一个子类」：
-{_taxonomy_menu()}
+{_taxonomy_menu(taxonomy)}
 
 归类原则：
-- 每条洞察只归一个最主要的大类，不重复归类；判断这条内容"主要"在讲什么
+- 每条洞察只归一个最主要的大类，不重复归类；判断这条内容“主要”在讲什么
 - subtopic 必须从所属大类给定的子类里选，不要自创
-- 实在无法归入时，subtopic 填「其他」
 
 分析原则：
 - 洞察要有具体判断，不泛泛而谈
@@ -43,7 +60,6 @@ def _build_system_prompt() -> str:
 
 def _build_prompt(meta: EpisodeMeta, transcript: Optional[str] = None) -> str:
     if transcript:
-        # 基于语音转录全文（可能较长，截断到 ~40k 字，留足模型上下文）
         content = f"以下是这期播客的**语音转录全文**，请基于真实讲述内容提炼：\n{transcript[:40000]}"
     else:
         content = f"内容描述（仅节目简介，信息有限）：\n{meta.description[:3000]}"
@@ -81,12 +97,27 @@ def _build_prompt(meta: EpisodeMeta, transcript: Optional[str] = None) -> str:
 - 全部中文"""
 
 
-async def analyze_episode(meta: EpisodeMeta, transcript: Optional[str] = None) -> AnalysisResult:
+def _coerce(taxonomy: dict[str, list[str]], anchor: str, subtopic: str) -> tuple[str, str]:
+    if anchor in taxonomy and subtopic in taxonomy[anchor]:
+        return anchor, subtopic
+    for candidate_anchor, subtopics in taxonomy.items():
+        if subtopic in subtopics:
+            return candidate_anchor, subtopic
+    fallback_anchor = next(iter(taxonomy))
+    return fallback_anchor, taxonomy[fallback_anchor][0]
+
+
+async def analyze_episode(
+    meta: EpisodeMeta,
+    transcript: Optional[str] = None,
+    context: Optional[dict[str, Any]] = None,
+) -> AnalysisResult:
+    taxonomy = _clean_taxonomy(context)
     response = await _get_client().chat.completions.create(
         model="deepseek-chat",
         messages=[
-            {"role": "system", "content": _build_system_prompt()},
-            {"role": "user",   "content": _build_prompt(meta, transcript)},
+            {"role": "system", "content": _build_system_prompt(context, taxonomy)},
+            {"role": "user", "content": _build_prompt(meta, transcript)},
         ],
         temperature=0.7,
         max_tokens=2048,
@@ -95,16 +126,15 @@ async def analyze_episode(meta: EpisodeMeta, transcript: Optional[str] = None) -
     raw = response.choices[0].message.content.strip()
     if raw.startswith("```"):
         raw = raw.split("\n", 1)[1].rsplit("```", 1)[0]
-
     data = json.loads(raw)
 
     insights = []
-    for i in data["key_insights"]:
-        anchor, subtopic = coerce(i.get("anchor", ""), i.get("subtopic", ""))
+    for item in data["key_insights"]:
+        anchor, subtopic = _coerce(taxonomy, item.get("anchor", ""), item.get("subtopic", ""))
         insights.append(Insight(
-            headline=i["headline"],
-            body=i["body"],
-            pm_relevance=i.get("pm_relevance", ""),
+            headline=item["headline"],
+            body=item["body"],
+            pm_relevance=item.get("pm_relevance", ""),
             anchor=anchor,
             subtopic=subtopic,
         ))
@@ -116,5 +146,5 @@ async def analyze_episode(meta: EpisodeMeta, transcript: Optional[str] = None) -
         summary=data["summary"],
         key_insights=insights,
         reflection_questions=data["reflection_questions"],
-        framework_updates={},  # deprecated, kept for compat
+        framework_updates={},
     )

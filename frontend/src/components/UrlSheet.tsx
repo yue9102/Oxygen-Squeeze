@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { apiUrl } from '../api'
+import { processEpisode } from '../api'
 
 const STEPS = ['去拿一下…', '帮你想想…', '整理好了！']
 
@@ -32,18 +32,12 @@ export default function UrlSheet({ open, onClose, onDone }: Props) {
     const t2 = setTimeout(() => setStep(2), 5500)
 
     try {
-      const res = await fetch(apiUrl('/api/process'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: url.trim() }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.detail || '出了一点问题')
+      const episode = await processEpisode(url.trim())
       clearTimeout(t1); clearTimeout(t2)
-      onDone(data.episode.id)
-    } catch (e: any) {
+      onDone(episode.id)
+    } catch (e: unknown) {
       clearTimeout(t1); clearTimeout(t2)
-      setError(e.message || '好像出了一点问题，再试一次吧')
+      setError(e instanceof Error ? e.message : '好像出了一点问题，再试一次吧')
       setLoading(false)
     }
   }

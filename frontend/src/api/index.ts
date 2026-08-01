@@ -1,55 +1,121 @@
 import axios from 'axios'
-import type { Episode, TopicsResponse, TopicDetail, Reflection, Profile, Stats } from '../types'
+import type { Episode, Profile, Reflection, Stats, TopicDetail, TopicsResponse } from '../types'
+import {
+  deleteEpisode as deleteLocalEpisode,
+  deleteReflection as deleteLocalReflection,
+  getEpisode,
+  getEpisodes,
+  getProfile as getLocalProfile,
+  getReflections,
+  getStats,
+  getTopicDetail,
+  getTopics,
+  reassignInsight as reassignLocalInsight,
+  saveEpisode,
+  saveProfile as saveLocalProfile,
+  saveReflection,
+} from '../data/localStore'
 
-// 部署好的后端地址（APK 离线包默认指向它；可被 VITE_API_BASE 覆盖）
+// APK 默认指向已部署的计算服务；PWA/网页使用同源 API，可由 VITE_API_BASE 覆盖。
 const DEPLOYED_BACKEND = 'https://nico9800000-oxygen-squeeze.hf.space'
-// 是否运行在 Capacitor 原生壳里（安卓 APK / iOS 原生）
-const IS_NATIVE = typeof window !== 'undefined' && !!(window as any).Capacitor
+type CapacitorWindow = Window & { Capacitor?: unknown }
+const IS_NATIVE = typeof window !== 'undefined' && !!(window as CapacitorWindow).Capacitor
 
-// 优先用环境变量；原生壳里用内置后端地址；PWA/网页用同源（空）。
 export const API_BASE =
   (import.meta.env.VITE_API_BASE as string | undefined)?.replace(/\/$/, '') ||
   (IS_NATIVE ? DEPLOYED_BACKEND : '')
 
-/** Build an absolute API path that works in dev, PWA, and native shells. */
 export const apiUrl = (path: string) => `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`
 
 const http = axios.create({ baseURL: `${API_BASE}/api` })
 
+const EMPTY_PROFILE: Profile = { identity: '', role: '', focus: [], anchors: {}, exists: false }
+
+/** 读取本机画像；它只存在当前浏览器配置/当前 App 的 IndexedDB 中。 */
+export async function fetchProfile(): Promise<Profile> {
+  return (await getLocalProfile()) ?? EMPTY_PROFILE
+}
+
+/** 后端仅生成框架，画像与框架随后立即保存到当前设备。 */
+export async function saveProfile(input: { identity: string; role: string; focus: string[] }): Promise<Profile> {
+  const { data } = await http.post<{ ok: boolean; anchors: Profile['anchors'] }>('/framework', input, { timeout: 60000 })
+  const profile: Profile = { ...input, anchors: data.anchors, exists: true }
+  await saveLocalProfile(profile)
+  return profile
+}
+
+/** 提交播客后立即将处理状态写入本机，关闭 App 后仍可继续查看/轮询。 */
 export async function processEpisode(url: string): Promise<Episode> {
-  const { data } = await http.post<{ ok: boolean; episode: Episode }>('/process', { url })
+  const profile = await getLocalProfile()
+  const { data } = await http.post<{ ok: boolean; episode: Episode }>('/process', {
+    url,
+    context: profile ?? undefined,
+  })
+  await saveEpisode(data.episode)
   return data.episode
 }
 
+/** 推进一次本机待转录任务。任务 ID 只保存在用户自己的设备内。 */
+export async function advanceEpisode(episode: Episode): Promise<Episode> {
+  if (!episode.task_id) return episode
+  const profile = await getLocalProfile()
+  const { data } = await http.post<{
+    status: 'running' | 'done' | 'error'
+    analysis?: Pick<Episode, 'summary' | 'key_insights' | 'reflection_questions' | 'framework_updates'>
+    error?: string
+  }>('/process/advance', {
+    task_id: episode.task_id,
+    episode: {
+      url: episode.url,
+      podcast_name: episode.podcast_name,
+      title: episode.title,
+      description: episode.description ?? '',
+      duration: episode.duration,
+      audio_url: episode.audio_url,
+    },
+    context: profile ?? undefined,
+  }, { timeout: 60000 })
+
+  const next = data.status === 'done' && data.analysis
+    ? { ...episode, ...data.analysis, status: 'done' as const, task_id: undefined, error: undefined }
+    : data.status === 'error'
+      ? { ...episode, status: 'error' as const, error: data.error || '转录失败' }
+      : episode
+
+  await saveEpisode(next)
+  return next
+}
+
 export async function fetchEpisodes(): Promise<Episode[]> {
-  const { data } = await http.get<Episode[]>('/episodes')
-  return data
+  return getEpisodes()
 }
 
 export async function fetchEpisode(id: string): Promise<Episode> {
-  const { data } = await http.get<Episode>(`/episodes/${id}`)
-  return data
+  const episode = await getEpisode(id)
+  if (!episode) throw new Error('找不到这条播客记录')
+  return episode
 }
 
 export async function fetchTopics(): Promise<TopicsResponse> {
-  const { data } = await http.get<TopicsResponse>('/topics')
-  return data
+  return getTopics()
 }
 
 export async function fetchTopicDetail(anchor: string, subtopic: string): Promise<TopicDetail> {
-  const { data } = await http.get<TopicDetail>('/topics/detail', { params: { anchor, subtopic } })
-  return data
+  const detail = await getTopicDetail(anchor, subtopic)
+  if (!detail) throw new Error('找不到这个话题')
+  return detail
 }
 
-export async function reassignInsight(episode_id: string, headline: string, anchor: string, subtopic: string): Promise<void> {
-  await http.post('/insights/reassign', { episode_id, headline, anchor, subtopic })
+export async function reassignInsight(episodeId: string, headline: string, anchor: string, subtopic: string): Promise<void> {
+  await reassignLocalInsight(episodeId, headline, anchor, subtopic)
 }
 
 export async function deleteEpisode(id: string): Promise<void> {
-  await http.delete(`/episodes/${id}`)
+  await deleteLocalEpisode(id)
 }
 
 // ── Reflections（我的思考） ──
+
 export async function createReflection(params: {
   audio: Blob; filename: string; episode_id: string; episode_title: string; podcast_name: string; question: string
 }): Promise<Reflection> {
@@ -63,30 +129,18 @@ export async function createReflection(params: {
     headers: { 'Content-Type': 'multipart/form-data' },
     timeout: 180000,
   })
+  await saveReflection(data.reflection)
   return data.reflection
 }
 
 export async function fetchReflections(episodeId?: string): Promise<Reflection[]> {
-  const { data } = await http.get<Reflection[]>('/reflections', { params: episodeId ? { episode_id: episodeId } : {} })
-  return data
+  return getReflections(episodeId)
 }
 
 export async function deleteReflection(id: string): Promise<void> {
-  await http.delete(`/reflections/${id}`)
-}
-
-// ── Profile / Stats（用户主题页 + 个性化框架） ──
-export async function fetchProfile(): Promise<Profile> {
-  const { data } = await http.get<Profile>('/profile')
-  return data
-}
-
-export async function saveProfile(p: { identity: string; role: string; focus: string[] }): Promise<Profile> {
-  const { data } = await http.post<{ ok: boolean; profile: Profile }>('/profile', p, { timeout: 60000 })
-  return data.profile
+  await deleteLocalReflection(id)
 }
 
 export async function fetchStats(): Promise<Stats> {
-  const { data } = await http.get<Stats>('/stats')
-  return data
+  return getStats()
 }

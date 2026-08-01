@@ -34,12 +34,14 @@ pinned: false
 React PWA  ──┐
              ├─►  FastAPI  ──►  DeepSeek API
 Android APK ─┘   (同时托管 PWA 静态资源)
-             (Capacitor)        本地 JSON 存储
+             (Capacitor)        仅做转录与分析计算
+                                  ↓
+                            IndexedDB 本机存储
 ```
 
 - **前端**：React + Vite + Framer Motion，可装为 PWA，也用 Capacitor 打包成安卓 APK
 - **后端**：FastAPI，抓取小宇宙 / Apple Podcasts 节目信息，调用 DeepSeek 提炼洞察
-- **存储**：JSON 文件（个人工具，无需数据库）
+- **存储**：浏览器 / Capacitor WebView 的 IndexedDB。画像、播客卡片、反思回答和统计只保存在当前设备；不同设备不会互相看到数据，同一设备重新打开 App 后仍会保留。
 - **一个部署搞定**：后端同时对外提供 `/api/*` 和可安装的 PWA
 
 ---
@@ -92,5 +94,6 @@ npm run dev          # http://localhost:5173
 
 ## 说明
 
-- Render 免费实例的磁盘是临时的，重新部署后 `data/` 会重置。要长期保存可挂持久磁盘或换数据库。
+- 服务端不保存个人知识数据。音频转录、DeepSeek 分析和框架生成仅在请求期间处理，语音回答的临时音频会在请求结束后删除。
+- 本机数据依赖浏览器 / App 存储：清除站点数据、卸载 App、无痕模式或更换浏览器会得到一份新的独立空间；当前版本不做跨设备同步。
 - APK 为 debug 包，安装时系统会提示来源未知，属正常。正式上架应用商店需各自的开发者账号与签名。

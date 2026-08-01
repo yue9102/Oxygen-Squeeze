@@ -6,6 +6,8 @@ backend/.env
 
 # Data (personal knowledge, keep local)
 data/
+!frontend/src/data/
+!frontend/src/data/**
 
 # Node
 frontend/node_modules/

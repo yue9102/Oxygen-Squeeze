@@ -41,7 +41,9 @@ export interface Episode {
   reflection_questions: string[]
   framework_updates: Record<string, string[]>
   status?: 'transcribing' | 'analyzing' | 'done' | 'error'
+  task_id?: string
   audio_url?: string
+  description?: string
   error?: string
 }
 
