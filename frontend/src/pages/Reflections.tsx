@@ -198,12 +198,6 @@ function LegacyCard({ r, rawOpen, onToggleRaw, onDelete }: {
       borderRadius: 16, padding: '16px 16px 14px', marginBottom: 12,
       border: '1px solid rgba(92,139,110,0.14)', boxShadow: '0 2px 10px rgba(60,90,60,0.06)',
     }}>
-      {/* 来源问题 */}
-      <p className="slash-label" style={{ color: 'var(--accent)', marginBottom: 6 }}>/ 回应 /</p>
-      <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.8125rem', color: '#6B7D67', lineHeight: 1.5, marginBottom: 12 }}>
-        {r.question}
-      </p>
-
       {/* 核心观点 */}
       <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '1.0625rem', fontWeight: 700, color: '#2B3826', lineHeight: 1.5, marginBottom: 10 }}>
         {r.conclusion}
@@ -285,11 +279,6 @@ function GuidedCard({ r, guidance, rawOpen, onToggleRaw, onDelete }: {
       borderRadius: 16, padding: '16px 16px 14px', marginBottom: 12,
       border: '1px solid rgba(92,139,110,0.14)', boxShadow: '0 2px 10px rgba(60,90,60,0.06)',
     }}>
-      <p className="slash-label" style={{ color: 'var(--accent)', marginBottom: 6 }}>/ 回应 /</p>
-      <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.8125rem', color: '#6B7D67', lineHeight: 1.5 }}>
-        {r.question}
-      </p>
-
       {(coreConclusion || corePoints.length > 0) && (
         <GuideSection title="你的核心观点">
           {coreConclusion && (
