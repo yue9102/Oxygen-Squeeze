@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { createReflection } from '../api'
-import type { Reflection } from '../types'
+import type { Insight, Reflection } from '../types'
 
 interface Props {
   open: boolean
@@ -9,11 +9,14 @@ interface Props {
   episodeId: string
   episodeTitle: string
   podcastName: string
+  episodeUrl: string
+  episodeSummary: string
+  keyInsights: Array<Pick<Insight, 'headline' | 'body'>>
   question: string
   onSaved: (r: Reflection) => void
 }
 
-type Phase = 'idle' | 'recording' | 'uploading' | 'done' | 'error'
+type Phase = 'idle' | 'recording' | 'uploading' | 'done' | 'limited' | 'error'
 
 function pickMime(): { mime: string; ext: string } {
   // iOS Safari → mp4/aac；Chrome → webm/opus
@@ -24,7 +27,18 @@ function pickMime(): { mime: string; ext: string } {
   return { mime: '', ext: 'm4a' }
 }
 
-export default function VoiceAnswerSheet({ open, onClose, episodeId, episodeTitle, podcastName, question, onSaved }: Props) {
+export default function VoiceAnswerSheet({
+  open,
+  onClose,
+  episodeId,
+  episodeTitle,
+  podcastName,
+  episodeUrl,
+  episodeSummary,
+  keyInsights,
+  question,
+  onSaved,
+}: Props) {
   const [phase, setPhase] = useState<Phase>('idle')
   const [secs, setSecs] = useState(0)
   const [err, setErr] = useState('')
@@ -35,8 +49,10 @@ export default function VoiceAnswerSheet({ open, onClose, episodeId, episodeTitl
   const extRef = useRef('m4a')
 
   useEffect(() => {
-    if (open) { setPhase('idle'); setSecs(0); setErr('') }
-    return () => stopTracks()
+    const resetTimer = window.setTimeout(() => {
+      if (open) { setPhase('idle'); setSecs(0); setErr('') }
+    }, 0)
+    return () => { window.clearTimeout(resetTimer); stopTracks() }
   }, [open])
 
   function stopTracks() {
@@ -79,12 +95,13 @@ export default function VoiceAnswerSheet({ open, onClose, episodeId, episodeTitl
       const reflection = await createReflection({
         audio: blob, filename: `answer.${extRef.current}`,
         episode_id: episodeId, episode_title: episodeTitle, podcast_name: podcastName, question,
+        episode_url: episodeUrl, episode_summary: episodeSummary, key_insights: keyInsights,
       })
-      setPhase('done')
+      setPhase(reflection.guidance && reflection.guidance.status !== 'needs_retry' ? 'done' : 'limited')
       onSaved(reflection)
       setTimeout(onClose, 900)
-    } catch (e: any) {
-      setErr(e?.response?.data?.detail || '整理失败，再试一次')
+    } catch (error: unknown) {
+      setErr(reflectionErrorMessage(error))
       setPhase('error')
     }
   }
@@ -138,7 +155,7 @@ export default function VoiceAnswerSheet({ open, onClose, episodeId, episodeTitl
                   <div className="breathe" style={{ width: 64, height: 64, borderRadius: 32, background: 'rgba(92,139,110,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <MicIcon />
                   </div>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--accent)', fontWeight: 600 }}>正在听你说、帮你理清逻辑…</p>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--accent)', fontWeight: 600 }}>正在结合本期内容，帮你梳理回答……</p>
                   <p style={{ fontSize: '0.75rem', color: '#8A9A84' }}>约十几秒</p>
                 </>
               )}
@@ -147,7 +164,15 @@ export default function VoiceAnswerSheet({ open, onClose, episodeId, episodeTitl
                   <div style={{ width: 64, height: 64, borderRadius: 32, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </div>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--accent)', fontWeight: 600 }}>已沉淀到「回响」</p>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--accent)', fontWeight: 600 }}>回答指导已保存到「回响」</p>
+                </>
+              )}
+              {phase === 'limited' && (
+                <>
+                  <div style={{ width: 64, height: 64, borderRadius: 32, background: 'rgba(92,139,110,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="var(--accent)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--accent)', fontWeight: 600 }}>你的原话已保存，指导暂时没有生成</p>
                 </>
               )}
               {phase === 'error' && (
@@ -162,6 +187,14 @@ export default function VoiceAnswerSheet({ open, onClose, episodeId, episodeTitl
       )}
     </AnimatePresence>
   )
+}
+
+function reflectionErrorMessage(error: unknown): string {
+  if (typeof error === 'object' && error !== null && 'response' in error) {
+    const response = (error as { response?: { data?: { detail?: unknown } } }).response
+    if (typeof response?.data?.detail === 'string') return response.data.detail
+  }
+  return '整理失败，再试一次'
 }
 
 function recBtn(bg: string): React.CSSProperties {

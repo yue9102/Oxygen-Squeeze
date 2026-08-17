@@ -90,6 +90,60 @@ export interface Stats {
   reflections: number
 }
 
+export interface GuidanceFeedbackItem {
+  message: string
+  answer_quote?: string
+}
+
+export interface EpisodeAlignmentItem {
+  message: string
+  basis_id?: string
+  basis_text?: string
+}
+
+export interface VerificationHint {
+  claim: string
+  reason: string
+  status: 'needs_verification' | 'different_from_episode_context'
+  episode_basis_id?: string
+  episode_basis_text?: string
+  search_query: string
+}
+
+export interface SupplementaryAngle {
+  angle: string
+  why_relevant: string
+  origin: 'podcast_context' | 'reasoning_framework'
+}
+
+export interface ReflectionGuidance {
+  schema_version: 'voice_guidance.v1'
+  status: 'ok' | 'limited' | 'needs_retry'
+  user_position: string
+  relevance: 'direct' | 'partial' | 'off_topic' | 'unclear'
+  logic: {
+    conclusion_status: 'clear' | 'implicit' | 'missing'
+    structure_status: 'clear' | 'partly_clear' | 'scattered'
+    reasoning_status: 'sufficient' | 'partial' | 'unsupported' | 'not_needed'
+    strengths: GuidanceFeedbackItem[]
+    improvements: GuidanceFeedbackItem[]
+  }
+  episode_alignment: {
+    supported: EpisodeAlignmentItem[]
+    missing_angles: string[]
+  }
+  verification_hint: VerificationHint | null
+  supplementary_angles: SupplementaryAngle[]
+  reference_answer: {
+    conclusion: string
+    points: string[]
+    ai_additions: string[]
+  } | null
+  open_question: string | null
+  limitations: string[]
+  confidence: 'high' | 'medium' | 'low'
+}
+
 export interface Reflection {
   id: string
   episode_id: string
@@ -100,4 +154,6 @@ export interface Reflection {
   points: string[]
   open_questions: string[]
   created_at: string
+  guidance_version?: 1
+  guidance?: ReflectionGuidance
 }

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { Episode, Profile, Reflection, Stats, TopicDetail, TopicsResponse } from '../types'
+import type { Episode, Insight, Profile, Reflection, Stats, TopicDetail, TopicsResponse } from '../types'
 import {
   deleteEpisode as deleteLocalEpisode,
   deleteReflection as deleteLocalReflection,
@@ -117,14 +117,26 @@ export async function deleteEpisode(id: string): Promise<void> {
 // ── Reflections（我的思考） ──
 
 export async function createReflection(params: {
-  audio: Blob; filename: string; episode_id: string; episode_title: string; podcast_name: string; question: string
+  audio: Blob
+  filename: string
+  episode_id: string
+  episode_title: string
+  podcast_name: string
+  question: string
+  episode_url: string
+  episode_summary: string
+  key_insights: Array<Pick<Insight, 'headline' | 'body'>>
 }): Promise<Reflection> {
+  const keyInsights = params.key_insights.slice(0, 5).map(({ headline, body }) => ({ headline, body }))
   const fd = new FormData()
   fd.append('audio', params.audio, params.filename)
   fd.append('episode_id', params.episode_id)
   fd.append('episode_title', params.episode_title)
   fd.append('podcast_name', params.podcast_name)
   fd.append('question', params.question)
+  fd.append('episode_url', params.episode_url)
+  fd.append('episode_summary', params.episode_summary)
+  fd.append('key_insights_json', JSON.stringify(keyInsights))
   const { data } = await http.post<{ ok: boolean; reflection: Reflection }>('/reflections', fd, {
     headers: { 'Content-Type': 'multipart/form-data' },
     timeout: 180000,

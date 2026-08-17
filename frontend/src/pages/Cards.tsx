@@ -219,6 +219,9 @@ export default function Cards() {
           episodeId={episode.id}
           episodeTitle={episode.title}
           podcastName={episode.podcast_name}
+          episodeUrl={episode.url}
+          episodeSummary={episode.summary}
+          keyInsights={episode.key_insights}
           question={answerQuestion ?? ''}
           onSaved={() => {}}
         />

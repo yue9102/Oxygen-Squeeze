@@ -11,3 +11,5 @@ services:
     envVars:
       - key: DEEPSEEK_API_KEY
         sync: false   # 在 Render 控制台手动填入，不写进仓库
+      - key: DASHSCOPE_API_KEY
+        sync: false   # 语音转录服务密钥，在 Render 控制台手动填入

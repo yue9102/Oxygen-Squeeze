@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 import uuid
@@ -16,7 +17,7 @@ load_dotenv(Path(__file__).parent / ".env")
 from analyzer import analyze_episode
 from framework_gen import generate_framework
 from models import Episode, EpisodeMeta
-from reflection_skill import refine_reflection
+from reflection_skill import fallback_reflection, refine_reflection
 from scraper import scrape_episode
 from transcriber import check_transcription, submit_transcription, transcribe_short
 
@@ -66,6 +67,51 @@ def _now_iso() -> str:
 
 def _context_data(context: Optional[ProfileContext]) -> Optional[dict]:
     return context.model_dump() if context else None
+
+
+def _trim_form_text(value: str, limit: int) -> str:
+    if not isinstance(value, str):
+        return ""
+    return " ".join(value.strip().split())[:limit].strip()
+
+
+def _reflection_episode_context(
+    episode_url: str,
+    episode_summary: str,
+    key_insights_json: str,
+) -> dict:
+    """Parse untrusted client context and assign server-controlled K1-K5 IDs."""
+    raw_items = []
+    if isinstance(key_insights_json, str) and len(key_insights_json) <= 50_000:
+        try:
+            candidate = json.loads(key_insights_json or "[]")
+            if isinstance(candidate, list):
+                raw_items = candidate
+        except (TypeError, ValueError, json.JSONDecodeError):
+            raw_items = []
+
+    knowledge_points = []
+    for item in raw_items:
+        if not isinstance(item, dict):
+            continue
+        headline = _trim_form_text(item.get("headline", ""), 200)
+        body = _trim_form_text(item.get("body", ""), 1500)
+        if not headline and not body:
+            continue
+        knowledge_points.append({
+            "source_id": f"K{len(knowledge_points) + 1}",
+            "headline": headline,
+            "body": body,
+        })
+        if len(knowledge_points) >= 5:
+            break
+
+    return {
+        "episode_url": _trim_form_text(episode_url, 1000),
+        "summary": _trim_form_text(episode_summary, 4000),
+        "knowledge_points": knowledge_points,
+        "context_level": "cards_only",
+    }
 
 
 def _processing_episode(url: str, meta: EpisodeMeta, task_id: str) -> Episode:
@@ -172,7 +218,15 @@ async def create_reflection(
     episode_title: str = Form(""),
     podcast_name: str = Form(""),
     question: str = Form(...),
+    episode_url: str = Form(""),
+    episode_summary: str = Form(""),
+    key_insights_json: str = Form("[]"),
 ):
+    safe_episode_id = _trim_form_text(episode_id, 100)
+    safe_episode_title = _trim_form_text(episode_title, 300)
+    safe_podcast_name = _trim_form_text(podcast_name, 200)
+    safe_question = _trim_form_text(question, 600)
+    episode_context = _reflection_episode_context(episode_url, episode_summary, key_insights_json)
     ext = (audio.filename or "rec").split(".")[-1][:5] or "m4a"
     token = f"{uuid.uuid4().hex}.{ext}"
     path = _TMP_AUDIO / token
@@ -183,16 +237,29 @@ async def create_reflection(
         raw_text = await transcribe_short(audio_url)
         if not raw_text.strip():
             raise HTTPException(status_code=422, detail="没听清你的回答，再说一次试试")
-        refined = await refine_reflection(question, raw_text, podcast_name, episode_title)
+        try:
+            refined = await refine_reflection(
+                safe_question,
+                raw_text,
+                safe_podcast_name,
+                safe_episode_title,
+                episode_context,
+            )
+        except Exception:
+            # The user's completed answer should survive an independent AI
+            # formatting/provider failure; no server-side reflection is kept.
+            refined = fallback_reflection(raw_text, episode_context)
         reflection = {
             "id": str(uuid.uuid4())[:8],
-            "episode_id": episode_id,
-            "episode_title": episode_title,
-            "question": question,
+            "episode_id": safe_episode_id,
+            "episode_title": safe_episode_title,
+            "question": safe_question,
             "raw_text": raw_text,
             "conclusion": refined["conclusion"],
             "points": refined["points"],
             "open_questions": refined["open_questions"],
+            "guidance_version": 1,
+            "guidance": refined["guidance"],
             "created_at": _now_iso(),
         }
         return {"ok": True, "reflection": reflection}
