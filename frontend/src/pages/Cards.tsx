@@ -223,7 +223,10 @@ export default function Cards() {
           episodeSummary={episode.summary}
           keyInsights={episode.key_insights}
           question={answerQuestion ?? ''}
-          onSaved={() => {}}
+          onSaved={(reflection) => {
+            setAnswerQuestion(null)
+            nav(`/reflections/${reflection.id}`)
+          }}
         />
       </div>
     </div>

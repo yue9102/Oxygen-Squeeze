@@ -98,8 +98,8 @@ export default function VoiceAnswerSheet({
         episode_url: episodeUrl, episode_summary: episodeSummary, key_insights: keyInsights,
       })
       setPhase(reflection.guidance && reflection.guidance.status !== 'needs_retry' ? 'done' : 'limited')
-      onSaved(reflection)
-      setTimeout(onClose, 900)
+      // 先给用户一个明确的完成反馈，再直接带他进入刚生成的回响，避免停留在无后续的等待页。
+      window.setTimeout(() => onSaved(reflection), 650)
     } catch (error: unknown) {
       setErr(reflectionErrorMessage(error))
       setPhase('error')

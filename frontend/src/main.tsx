@@ -38,6 +38,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/shelf"                          element={<Shelf />} />
             <Route path="/shelf/topic/:anchor/:subtopic"  element={<TopicDetail />} />
             <Route path="/reflections" element={<Reflections />} />
+            <Route path="/reflections/:id" element={<Reflections />} />
             <Route path="/profile"   element={<Profile />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/history"   element={<Navigate to="/profile" replace />} />

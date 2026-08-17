@@ -1,11 +1,14 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate, useParams } from 'react-router-dom'
 import { fetchReflections, deleteReflection } from '../api'
 import BottomNav from '../components/BottomNav'
 import NavBar from '../components/NavBar'
 import type { Reflection, ReflectionGuidance } from '../types'
 
 export default function Reflections() {
+  const { id } = useParams<{ id: string }>()
+  const nav = useNavigate()
   const [items, setItems] = useState<Reflection[]>([])
   const [loading, setLoading] = useState(true)
   const [openRaw, setOpenRaw] = useState<string | null>(null)
@@ -17,7 +20,23 @@ export default function Reflections() {
   async function remove(id: string) {
     await deleteReflection(id)
     setItems(prev => prev.filter(r => r.id !== id))
+    nav('/reflections', { replace: true })
   }
+
+  const detail = id ? items.find(item => item.id === id) : undefined
+
+  if (id) {
+    return <ReflectionDetail
+      reflection={detail}
+      loading={loading}
+      rawOpen={openRaw === id}
+      onBack={() => nav('/reflections')}
+      onToggleRaw={() => setOpenRaw(openRaw === id ? null : id)}
+      onDelete={() => detail && remove(detail.id)}
+    />
+  }
+
+  const groups = groupByEpisode(items)
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
@@ -34,15 +53,70 @@ export default function Reflections() {
         ) : items.length === 0 ? (
           <Empty />
         ) : (
-          items.map((r, i) => (
-            <motion.div key={r.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04, duration: 0.28 }}>
-              <Card r={r} rawOpen={openRaw === r.id} onToggleRaw={() => setOpenRaw(openRaw === r.id ? null : r.id)} onDelete={() => remove(r.id)} />
+          groups.map((group, i) => (
+            <motion.div key={group.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04, duration: 0.28 }}>
+              <EpisodeGroup group={group} onOpen={(reflectionId) => nav(`/reflections/${reflectionId}`)} />
             </motion.div>
           ))
         )}
         <div style={{ height: 100 }} />
       </div>
 
+      <BottomNav />
+    </div>
+  )
+}
+
+type ReflectionGroup = { id: string; title: string; items: Reflection[] }
+
+function groupByEpisode(items: Reflection[]): ReflectionGroup[] {
+  const groups = new Map<string, ReflectionGroup>()
+  for (const item of items) {
+    const id = item.episode_id || item.episode_title || '未分类回响'
+    const current = groups.get(id) ?? { id, title: item.episode_title || '未命名播客', items: [] }
+    current.items.push(item)
+    groups.set(id, current)
+  }
+  return [...groups.values()]
+}
+
+function EpisodeGroup({ group, onOpen }: { group: ReflectionGroup; onOpen: (id: string) => void }) {
+  return (
+    <section style={{ marginBottom: 14, border: '1px solid rgba(92,139,110,0.14)', borderRadius: 16, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 10px rgba(60,90,60,0.05)' }}>
+      <div style={{ padding: '14px 15px 11px', background: 'rgba(92,139,110,0.055)', borderBottom: '1px solid rgba(92,139,110,0.11)' }}>
+        <p className="slash-label" style={{ color: 'var(--accent)', marginBottom: 5 }}>/ 一期播客 /</p>
+        <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.9375rem', fontWeight: 700, color: '#2B3826', lineHeight: 1.45 }}>{group.title}</p>
+        <p style={{ fontSize: '0.6875rem', color: '#8A9A84', marginTop: 4 }}>{group.items.length} 条回响</p>
+      </div>
+      {group.items.map((item, index) => (
+        <button key={item.id} onClick={() => onOpen(item.id)} style={{ width: '100%', textAlign: 'left', display: 'block', border: 'none', borderBottom: index < group.items.length - 1 ? '1px solid rgba(92,139,110,0.1)' : 'none', background: '#fff', cursor: 'pointer', padding: '13px 15px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+            <div style={{ minWidth: 0 }}>
+              <p style={{ fontSize: '0.6875rem', color: '#6B7D67', lineHeight: 1.45, marginBottom: 5 }}>{item.question}</p>
+              <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.875rem', fontWeight: 700, color: '#2B3826', lineHeight: 1.55 }}>{item.conclusion || '查看这次回答'}</p>
+            </div>
+            <span style={{ color: 'var(--accent)', fontSize: '1rem', lineHeight: 1.4, flexShrink: 0 }}>›</span>
+          </div>
+        </button>
+      ))}
+    </section>
+  )
+}
+
+function ReflectionDetail({ reflection, loading, rawOpen, onBack, onToggleRaw, onDelete }: {
+  reflection?: Reflection
+  loading: boolean
+  rawOpen: boolean
+  onBack: () => void
+  onToggleRaw: () => void
+  onDelete: () => void
+}) {
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
+      <NavBar title="这一次的回响" subtitle={reflection?.episode_title || '回到你的思考'} rightAction={<button onClick={onBack} style={{ border: 'none', background: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: '0.8125rem' }}>返回</button>} />
+      <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 100px' }}>
+        {loading ? <div style={{ height: 260, background: 'rgba(92,139,110,0.06)', borderRadius: 16, animation: 'pulse 1.6s ease-in-out infinite' }} /> : reflection ? <Card r={reflection} rawOpen={rawOpen} onToggleRaw={onToggleRaw} onDelete={onDelete} /> : <p style={{ textAlign: 'center', color: '#8A9A84', paddingTop: 80 }}>这条回响已经不存在了</p>}
+      </div>
       <BottomNav />
     </div>
   )
@@ -175,28 +249,22 @@ function GuidedCard({ r, guidance, rawOpen, onToggleRaw, onDelete }: {
   onToggleRaw: () => void
   onDelete: () => void
 }) {
-  const strengths = guidance.logic.strengths.filter(item => item.message.trim()).slice(0, 2)
-  const improvements = guidance.logic.improvements.filter(item => item.message.trim()).slice(0, 2)
-  const supported = guidance.episode_alignment.supported.filter(item => item.message.trim()).slice(0, 2)
-  const missingAngles = guidance.episode_alignment.missing_angles.filter(Boolean).slice(0, 2)
-  const supplementary = guidance.supplementary_angles.filter(item => item.angle.trim()).slice(0, 3)
+  const expressionTip = guidance.logic.improvements.find(item => item.message.trim())?.message.trim()
+    || guidance.logic.strengths.find(item => item.message.trim())?.message.trim()
   const coreConclusion = r.conclusion.trim() || guidance.user_position.trim()
   const corePoints = r.points.filter(Boolean)
   const referenceConclusion = guidance.reference_answer?.conclusion.trim() || ''
   const referencePoints = guidance.reference_answer?.points.filter(Boolean) || []
-  const aiAdditions = guidance.reference_answer?.ai_additions.filter(Boolean).slice(0, 3) || []
-  const limitations = guidance.limitations.map(item => item.trim()).filter(Boolean).slice(0, 2)
+  const additionalAngles = [
+    ...guidance.supplementary_angles.map(item => item.angle.trim()),
+    ...(guidance.reference_answer?.ai_additions ?? []).map(item => item.trim()),
+  ].filter((item, index, all) => item && all.indexOf(item) === index).slice(0, 2)
   const openQuestions = [
     ...(guidance.open_question?.trim() ? [guidance.open_question.trim()] : []),
     ...r.open_questions.map(item => item.trim()).filter(Boolean),
   ].filter((item, index, items) => items.indexOf(item) === index).slice(0, 2)
   const verificationHint = guidance.verification_hint
-  const hasVerificationHint = Boolean(verificationHint && (
-    verificationHint.claim.trim()
-    || verificationHint.reason.trim()
-    || verificationHint.episode_basis_text?.trim()
-    || verificationHint.search_query.trim()
-  ))
+  const hasVerificationHint = Boolean(verificationHint?.claim.trim() && verificationHint.reason.trim())
 
   return (
     <article style={{
@@ -224,78 +292,8 @@ function GuidedCard({ r, guidance, rawOpen, onToggleRaw, onDelete }: {
         </GuideSection>
       )}
 
-      {(strengths.length > 0 || improvements.length > 0) && (
-        <GuideSection title="表达指导">
-          <FeedbackItems title="已经讲清的地方" items={strengths} />
-          <FeedbackItems title="可以再讲清楚" items={improvements} improvement />
-        </GuideSection>
-      )}
-
-      {(supported.length > 0 || missingAngles.length > 0) && (
-        <GuideSection title="和本期内容的连接">
-          {supported.length > 0 && (
-            <div style={{ marginBottom: missingAngles.length > 0 ? 12 : 0 }}>
-              <MiniTitle>已经连接到</MiniTitle>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-                {supported.map((item, i) => (
-                  <div key={i} style={{ paddingLeft: 10, borderLeft: '2px solid rgba(92,139,110,0.28)' }}>
-                    <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.8125rem', color: '#4A5A46', lineHeight: 1.65 }}>
-                      {item.message}
-                    </p>
-                    {item.basis_text?.trim() && (
-                      <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.6875rem', color: '#81907C', lineHeight: 1.6, marginTop: 4 }}>
-                        本期内容：{item.basis_text}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          {missingAngles.length > 0 && (
-            <div>
-              <MiniTitle>尚可补充</MiniTitle>
-              <DotItems items={missingAngles} />
-            </div>
-          )}
-        </GuideSection>
-      )}
-
-      {hasVerificationHint && verificationHint && <VerificationHintPanel hint={verificationHint} />}
-
-      {supplementary.length > 0 && (
-        <GuideSection title="可以补充的角度">
-          <p style={{ fontSize: '0.6875rem', color: '#879382', lineHeight: 1.55, marginBottom: 9 }}>
-            以下是参考视角，不代表唯一答案
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-            {supplementary.map((item, i) => (
-              <div key={i} style={{ background: 'rgba(92,139,110,0.055)', borderRadius: 9, padding: '9px 10px' }}>
-                <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.8125rem', fontWeight: 700, color: '#4A5A46', lineHeight: 1.5 }}>
-                  {item.angle}
-                </p>
-                {item.why_relevant.trim() && (
-                  <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.75rem', color: '#6B7D67', lineHeight: 1.6, marginTop: 3 }}>
-                    {item.why_relevant}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        </GuideSection>
-      )}
-
       {(referenceConclusion || referencePoints.length > 0) && guidance.reference_answer && (
-        <GuideSection title="参考表达">
-          {aiAdditions.length > 0 && (
-            <span style={{
-              display: 'inline-flex', borderRadius: 10, padding: '3px 8px', marginBottom: 9,
-              background: 'rgba(139,110,60,0.09)', color: '#7A633A', fontSize: '0.625rem',
-              fontFamily: '-apple-system,system-ui,sans-serif',
-            }}>
-              含 AI 补充视角
-            </span>
-          )}
+        <GuideSection title="完整参考回答">
           {referenceConclusion && (
             <p style={{
               fontFamily: "'Noto Serif SC',serif", fontSize: '0.9375rem', fontWeight: 700,
@@ -305,11 +303,15 @@ function GuidedCard({ r, guidance, rawOpen, onToggleRaw, onDelete }: {
             </p>
           )}
           <NumberedItems items={referencePoints} />
-          {aiAdditions.length > 0 && (
-            <div style={{ marginTop: 10, paddingTop: 9, borderTop: '1px dashed rgba(139,110,60,0.2)' }}>
-              <MiniTitle>AI 补充了这些视角</MiniTitle>
-              <DotItems items={aiAdditions} color="#7A633A" />
-            </div>
+        </GuideSection>
+      )}
+
+      {(expressionTip || additionalAngles.length > 0 || hasVerificationHint) && (
+        <GuideSection title="补充提示">
+          {expressionTip && <CompactHint label="表达建议" text={expressionTip} />}
+          {additionalAngles.length > 0 && <CompactHint label="可补充视角" text={additionalAngles.join('；')} />}
+          {hasVerificationHint && verificationHint && (
+            <CompactHint label="待验证" text={`${verificationHint.claim}。${verificationHint.reason}${verificationHint.search_query.trim() ? ` 可搜索：${verificationHint.search_query.trim()}` : ''}`} tone="warm" />
           )}
         </GuideSection>
       )}
@@ -320,20 +322,6 @@ function GuidedCard({ r, guidance, rawOpen, onToggleRaw, onDelete }: {
           {openQuestions.map((question, i) => (
             <p key={i} style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.75rem', color: '#6B7D67', lineHeight: 1.6 }}>
               · {question}
-            </p>
-          ))}
-        </div>
-      )}
-
-      {limitations.length > 0 && (
-        <div style={{
-          marginTop: 12, padding: '9px 10px', borderRadius: 9,
-          background: 'rgba(92,139,110,0.035)', border: '1px dashed rgba(92,139,110,0.13)',
-        }}>
-          <p className="slash-label" style={{ color: '#879382', marginBottom: 5, fontSize: '0.42rem' }}>/ 关于这次指导 /</p>
-          {limitations.map((item, i) => (
-            <p key={i} style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.6875rem', color: '#879382', lineHeight: 1.55 }}>
-              · {item}
             </p>
           ))}
         </div>
@@ -353,79 +341,13 @@ function GuideSection({ title, children }: { title: string; children: ReactNode 
   )
 }
 
-function MiniTitle({ children }: { children: ReactNode }) {
-  return <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#6B7D67', marginBottom: 6 }}>{children}</p>
-}
-
-function FeedbackItems({ title, items, improvement = false }: {
-  title: string
-  items: ReflectionGuidance['logic']['strengths']
-  improvement?: boolean
-}) {
-  if (items.length === 0) return null
-
+function CompactHint({ label, text, tone = 'green' }: { label: string; text: string; tone?: 'green' | 'warm' }) {
+  const color = tone === 'warm' ? '#7A633A' : '#4A5A46'
+  const background = tone === 'warm' ? 'rgba(139,110,60,0.06)' : 'rgba(92,139,110,0.055)'
   return (
-    <div style={{ marginBottom: 11 }}>
-      <MiniTitle>{title}</MiniTitle>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {items.map((item, i) => (
-          <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-            <span style={{ color: improvement ? '#8B7A5C' : 'var(--accent)', fontSize: '0.6875rem', lineHeight: 1.7, flexShrink: 0 }}>
-              {improvement ? '→' : '·'}
-            </span>
-            <div>
-              <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.8125rem', color: '#4A5A46', lineHeight: 1.65 }}>
-                {item.message}
-              </p>
-              {item.answer_quote?.trim() && (
-                <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.6875rem', color: '#879382', lineHeight: 1.55, marginTop: 3, fontStyle: 'italic' }}>
-                  “{item.answer_quote}”
-                </p>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function VerificationHintPanel({ hint }: {
-  hint: NonNullable<ReflectionGuidance['verification_hint']>
-}) {
-  return (
-    <section style={{
-      marginTop: 14, background: 'rgba(139,110,60,0.07)', border: '1px solid rgba(139,110,60,0.14)',
-      borderRadius: 11, padding: '11px 12px',
-    }}>
-      <p className="slash-label" style={{ color: '#7A633A', marginBottom: 9, fontSize: '0.45rem' }}>/ 建议核实 /</p>
-      {hint.claim.trim() && <LabelledText label="你提到" text={hint.claim} />}
-      {hint.reason.trim() && <LabelledText label="为什么建议核实" text={hint.reason} />}
-      {hint.episode_basis_text?.trim() && <LabelledText label="本期内容对照" text={hint.episode_basis_text} />}
-      {hint.search_query.trim() && (
-        <div style={{ marginTop: 9 }}>
-          <p style={{ fontSize: '0.625rem', color: '#8A7651', marginBottom: 5 }}>可复制搜索词</p>
-          <p style={{
-            background: 'rgba(255,255,255,0.66)', borderRadius: 7, padding: '7px 9px',
-            color: '#5F543F', fontSize: '0.75rem', lineHeight: 1.5,
-            fontFamily: '-apple-system,system-ui,sans-serif', userSelect: 'text', WebkitUserSelect: 'text',
-          }}>
-            {hint.search_query}
-          </p>
-        </div>
-      )}
-      <p style={{ fontSize: '0.625rem', color: '#8A7651', lineHeight: 1.55, marginTop: 9 }}>
-        请结合外部资料自行判断
-      </p>
-    </section>
-  )
-}
-
-function LabelledText({ label, text }: { label: string; text: string }) {
-  return (
-    <div style={{ marginBottom: 8 }}>
-      <p style={{ fontSize: '0.625rem', color: '#8A7651', marginBottom: 2 }}>{label}</p>
-      <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.75rem', color: '#5F543F', lineHeight: 1.6 }}>{text}</p>
+    <div style={{ padding: '8px 10px', borderRadius: 9, background, marginBottom: 7 }}>
+      <span style={{ color, fontSize: '0.6875rem', fontWeight: 700, marginRight: 7 }}>{label}</span>
+      <span style={{ fontFamily: "'Noto Serif SC',serif", color, fontSize: '0.75rem', lineHeight: 1.55 }}>{text}</span>
     </div>
   )
 }
@@ -446,16 +368,6 @@ function NumberedItems({ items }: { items: string[] }) {
             {item}
           </span>
         </div>
-      ))}
-    </div>
-  )
-}
-
-function DotItems({ items, color = '#6B7D67' }: { items: string[]; color?: string }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-      {items.map((item, i) => (
-        <p key={i} style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.75rem', color, lineHeight: 1.6 }}>· {item}</p>
       ))}
     </div>
   )
