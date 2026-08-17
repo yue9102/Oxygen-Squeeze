@@ -113,7 +113,19 @@ function ReflectionDetail({ reflection, loading, rawOpen, onBack, onToggleRaw, o
 }) {
   return (
     <div style={{ position: 'absolute', inset: 0, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
-      <NavBar title="这一次的回响" subtitle={reflection?.episode_title || '回到你的思考'} rightAction={<button onClick={onBack} style={{ border: 'none', background: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: '0.8125rem' }}>返回</button>} />
+      <div style={{ flexShrink: 0, height: 'var(--safe-top)', background: 'var(--nav-bg)' }} />
+      <div style={{ flexShrink: 0, minHeight: 44, display: 'flex', alignItems: 'center', padding: '0 16px', background: 'var(--nav-bg)', borderBottom: '0.5px solid var(--sep)' }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px 4px 0', display: 'flex', alignItems: 'center', gap: 5 }}>
+          <svg width="9" height="16" viewBox="0 0 9 16" fill="none"><path d="M8 1L1 8l7 7" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <span style={{ fontSize: '0.9375rem', color: 'var(--accent)', fontFamily: "'Noto Serif SC',serif", fontWeight: 600 }}>回响</span>
+        </button>
+      </div>
+      <div style={{ flexShrink: 0, padding: '15px 20px 14px', background: 'var(--bg)', borderBottom: '0.5px solid var(--sep)' }}>
+        <p className="slash-label" style={{ color: 'var(--accent)', marginBottom: 7 }}>/ 回应的问题 /</p>
+        <h1 style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '1.25rem', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.45 }}>
+          {reflection?.question || '这一次想回答的问题'}
+        </h1>
+      </div>
       <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 100px' }}>
         {loading ? <div style={{ height: 260, background: 'rgba(92,139,110,0.06)', borderRadius: 16, animation: 'pulse 1.6s ease-in-out infinite' }} /> : reflection ? <Card r={reflection} rawOpen={rawOpen} onToggleRaw={onToggleRaw} onDelete={onDelete} /> : <p style={{ textAlign: 'center', color: '#8A9A84', paddingTop: 80 }}>这条回响已经不存在了</p>}
       </div>
