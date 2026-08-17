@@ -19,6 +19,7 @@ export default function Reflections() {
   const [items, setItems] = useState<Reflection[]>([])
   const [loading, setLoading] = useState(true)
   const [openRaw, setOpenRaw] = useState<string | null>(null)
+  const [expandedGroupId, setExpandedGroupId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchReflections().then(d => { setItems(d); setLoading(false) }).catch(() => setLoading(false))
@@ -62,7 +63,12 @@ export default function Reflections() {
         ) : (
           groups.map((group, i) => (
             <motion.div key={group.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04, duration: 0.28 }}>
-              <EpisodeGroup group={group} onOpen={(reflectionId) => nav(`/reflections/${reflectionId}`)} />
+              <EpisodeGroup
+                group={group}
+                expanded={expandedGroupId === group.id}
+                onToggle={() => setExpandedGroupId(current => current === group.id ? null : group.id)}
+                onOpen={(reflectionId) => nav(`/reflections/${reflectionId}`)}
+              />
             </motion.div>
           ))
         )}
@@ -87,25 +93,49 @@ function groupByEpisode(items: Reflection[]): ReflectionGroup[] {
   return [...groups.values()]
 }
 
-function EpisodeGroup({ group, onOpen }: { group: ReflectionGroup; onOpen: (id: string) => void }) {
+function EpisodeGroup({ group, expanded, onToggle, onOpen }: {
+  group: ReflectionGroup
+  expanded: boolean
+  onToggle: () => void
+  onOpen: (id: string) => void
+}) {
+  const latestQuestion = group.items[0]?.question
+
   return (
-    <section style={{ marginBottom: 14, border: '1px solid rgba(92,139,110,0.14)', borderRadius: 16, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 10px rgba(60,90,60,0.05)' }}>
-      <div style={{ padding: '14px 15px 11px', background: 'rgba(92,139,110,0.055)', borderBottom: '1px solid rgba(92,139,110,0.11)' }}>
-        <p style={{ ...SLASH_LABEL, color: 'var(--accent)', marginBottom: 5 }}>/ 一期播客 /</p>
-        <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.9375rem', fontWeight: 700, color: '#2B3826', lineHeight: 1.45 }}>{group.title}</p>
-        <p style={{ fontSize: '0.6875rem', color: '#8A9A84', marginTop: 4 }}>{group.items.length} 条回响</p>
-      </div>
-      {group.items.map((item, index) => (
-        <button key={item.id} onClick={() => onOpen(item.id)} style={{ width: '100%', textAlign: 'left', display: 'block', border: 'none', borderBottom: index < group.items.length - 1 ? '1px solid rgba(92,139,110,0.1)' : 'none', background: '#fff', cursor: 'pointer', padding: '13px 15px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
-            <div style={{ minWidth: 0 }}>
-              <p style={{ fontSize: '0.6875rem', color: '#6B7D67', lineHeight: 1.45, marginBottom: 5 }}>{item.question}</p>
-              <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.875rem', fontWeight: 700, color: '#2B3826', lineHeight: 1.55 }}>{item.conclusion || '查看这次回答'}</p>
-            </div>
-            <span style={{ color: 'var(--accent)', fontSize: '1rem', lineHeight: 1.4, flexShrink: 0 }}>›</span>
+    <section style={{ marginBottom: 12, border: '1px solid rgba(92,139,110,0.14)', borderRadius: 16, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 10px rgba(60,90,60,0.05)' }}>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={expanded}
+        style={{ width: '100%', textAlign: 'left', display: 'block', border: 'none', background: 'rgba(92,139,110,0.055)', cursor: 'pointer', padding: '14px 15px 12px' }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+          <div style={{ minWidth: 0 }}>
+            <p style={{ ...SLASH_LABEL, color: 'var(--accent)', marginBottom: 5 }}>/ 一期播客 /</p>
+            <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.9375rem', fontWeight: 700, color: '#2B3826', lineHeight: 1.45 }}>{group.title}</p>
+            {!expanded && latestQuestion && <p style={{ fontSize: '0.6875rem', color: '#6B7D67', marginTop: 6, lineHeight: 1.45, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>最近：{latestQuestion}</p>}
+            <p style={{ fontSize: '0.6875rem', color: '#8A9A84', marginTop: expanded ? 5 : 3 }}>{group.items.length} 条回响 · {expanded ? '收起' : '展开查看'}</p>
           </div>
-        </button>
-      ))}
+          <span aria-hidden="true" style={{ color: 'var(--accent)', fontSize: '1.125rem', lineHeight: 1.2, flexShrink: 0, transform: expanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.18s ease' }}>›</span>
+        </div>
+      </button>
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} style={{ overflow: 'hidden' }}>
+            {group.items.map((item) => (
+              <button key={item.id} onClick={() => onOpen(item.id)} style={{ width: '100%', textAlign: 'left', display: 'block', border: 'none', borderTop: '1px solid rgba(92,139,110,0.1)', background: '#fff', cursor: 'pointer', padding: '13px 15px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ fontSize: '0.75rem', color: '#4A5A46', lineHeight: 1.5, marginBottom: 5 }}>{item.question}</p>
+                    <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.8125rem', fontWeight: 700, color: '#2B3826', lineHeight: 1.55 }}>{item.conclusion || '查看这次回答'}</p>
+                  </div>
+                  <span aria-hidden="true" style={{ color: 'var(--accent)', fontSize: '1rem', lineHeight: 1.4, flexShrink: 0 }}>›</span>
+                </div>
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }
