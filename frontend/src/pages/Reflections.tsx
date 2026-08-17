@@ -121,7 +121,7 @@ function ReflectionDetail({ reflection, loading, rawOpen, onBack, onToggleRaw, o
         </button>
       </div>
       <div style={{ flexShrink: 0, padding: '15px 20px 14px', background: 'var(--bg)', borderBottom: '0.5px solid var(--sep)' }}>
-        <p className="slash-label" style={{ color: 'var(--accent)', marginBottom: 7 }}>/ 回应的问题 /</p>
+        <p style={{ color: 'var(--accent)', marginBottom: 8, fontFamily: "'Noto Serif SC',serif", fontSize: '0.8125rem', fontWeight: 600, letterSpacing: '.045em', lineHeight: 1.2 }}>回应的问题</p>
         <h1 style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '1.25rem', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.45 }}>
           {reflection?.question || '这一次想回答的问题'}
         </h1>
@@ -280,7 +280,7 @@ function GuidedCard({ r, guidance, rawOpen, onToggleRaw, onDelete }: {
       border: '1px solid rgba(92,139,110,0.14)', boxShadow: '0 2px 10px rgba(60,90,60,0.06)',
     }}>
       {(coreConclusion || corePoints.length > 0) && (
-        <GuideSection title="你的核心观点">
+        <GuideSection title="你的核心观点" first>
           {coreConclusion && (
             <p style={{
               fontFamily: "'Noto Serif SC',serif", fontSize: '1.0625rem', fontWeight: 700,
@@ -333,10 +333,10 @@ function GuidedCard({ r, guidance, rawOpen, onToggleRaw, onDelete }: {
   )
 }
 
-function GuideSection({ title, children }: { title: string; children: ReactNode }) {
+function GuideSection({ title, children, first = false }: { title: string; children: ReactNode; first?: boolean }) {
   return (
-    <section style={{ marginTop: 14, paddingTop: 13, borderTop: '1px solid rgba(92,139,110,0.13)' }}>
-      <p className="slash-label" style={{ color: 'var(--accent)', marginBottom: 9, fontSize: '0.45rem' }}>/ {title} /</p>
+    <section style={{ marginTop: first ? 0 : 16, paddingTop: first ? 0 : 14, borderTop: first ? 'none' : '1px solid rgba(92,139,110,0.13)' }}>
+      <h2 style={{ color: '#4F8A68', marginBottom: 10, fontFamily: "'Noto Serif SC',serif", fontSize: '0.9375rem', fontWeight: 700, letterSpacing: '.025em', lineHeight: 1.35 }}>{title}</h2>
       {children}
     </section>
   )
