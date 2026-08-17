@@ -1,10 +1,17 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
 import { fetchReflections, deleteReflection } from '../api'
 import BottomNav from '../components/BottomNav'
 import NavBar from '../components/NavBar'
 import type { Reflection, ReflectionGuidance } from '../types'
+
+const SLASH_LABEL: CSSProperties = {
+  fontFamily: "'Special Elite', monospace",
+  fontSize: '0.5625rem',
+  letterSpacing: '0.2em',
+  textTransform: 'uppercase',
+}
 
 export default function Reflections() {
   const { id } = useParams<{ id: string }>()
@@ -84,7 +91,7 @@ function EpisodeGroup({ group, onOpen }: { group: ReflectionGroup; onOpen: (id: 
   return (
     <section style={{ marginBottom: 14, border: '1px solid rgba(92,139,110,0.14)', borderRadius: 16, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 10px rgba(60,90,60,0.05)' }}>
       <div style={{ padding: '14px 15px 11px', background: 'rgba(92,139,110,0.055)', borderBottom: '1px solid rgba(92,139,110,0.11)' }}>
-        <p className="slash-label" style={{ color: 'var(--accent)', marginBottom: 5 }}>/ 一期播客 /</p>
+        <p style={{ ...SLASH_LABEL, color: 'var(--accent)', marginBottom: 5 }}>/ 一期播客 /</p>
         <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.9375rem', fontWeight: 700, color: '#2B3826', lineHeight: 1.45 }}>{group.title}</p>
         <p style={{ fontSize: '0.6875rem', color: '#8A9A84', marginTop: 4 }}>{group.items.length} 条回响</p>
       </div>
@@ -121,7 +128,7 @@ function ReflectionDetail({ reflection, loading, rawOpen, onBack, onToggleRaw, o
         </button>
       </div>
       <div style={{ flexShrink: 0, padding: '15px 20px 14px', background: 'var(--bg)', borderBottom: '0.5px solid var(--sep)' }}>
-        <p style={{ color: 'var(--accent)', marginBottom: 8, fontFamily: "'Noto Serif SC',serif", fontSize: '0.8125rem', fontWeight: 600, letterSpacing: '.045em', lineHeight: 1.2 }}>回应的问题</p>
+        <p style={{ ...SLASH_LABEL, color: 'var(--accent)', marginBottom: 8 }}>/ 回应的问题 /</p>
         <h1 style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '1.25rem', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.45 }}>
           {reflection?.question || '这一次想回答的问题'}
         </h1>
@@ -214,7 +221,7 @@ function LegacyCard({ r, rawOpen, onToggleRaw, onDelete }: {
       {/* 再追问自己 */}
       {r.open_questions.length > 0 && (
         <div style={{ marginTop: 10, background: 'rgba(92,139,110,0.07)', borderRadius: 10, padding: '10px 12px' }}>
-          <p className="slash-label" style={{ color: 'var(--accent)', marginBottom: 6, fontSize: '0.45rem' }}>/ 再追问自己 /</p>
+          <p style={{ ...SLASH_LABEL, color: 'var(--accent)', marginBottom: 7 }}>/ 再追问自己 /</p>
           {r.open_questions.map((q, i) => (
             <p key={i} style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.75rem', color: '#6B7D67', lineHeight: 1.6 }}>· {q}</p>
           ))}
@@ -319,7 +326,7 @@ function GuidedCard({ r, guidance, rawOpen, onToggleRaw, onDelete }: {
 
       {openQuestions.length > 0 && (
         <div style={{ marginTop: 14, background: 'rgba(92,139,110,0.07)', borderRadius: 10, padding: '10px 12px' }}>
-          <p className="slash-label" style={{ color: 'var(--accent)', marginBottom: 6, fontSize: '0.45rem' }}>/ 再追问自己 /</p>
+          <p style={{ ...SLASH_LABEL, color: 'var(--accent)', marginBottom: 7 }}>/ 再追问自己 /</p>
           {openQuestions.map((question, i) => (
             <p key={i} style={{ fontFamily: "'Noto Serif SC',serif", fontSize: '0.75rem', color: '#6B7D67', lineHeight: 1.6 }}>
               · {question}
@@ -336,7 +343,7 @@ function GuidedCard({ r, guidance, rawOpen, onToggleRaw, onDelete }: {
 function GuideSection({ title, children, first = false }: { title: string; children: ReactNode; first?: boolean }) {
   return (
     <section style={{ marginTop: first ? 0 : 16, paddingTop: first ? 0 : 14, borderTop: first ? 'none' : '1px solid rgba(92,139,110,0.13)' }}>
-      <h2 style={{ color: '#4F8A68', marginBottom: 10, fontFamily: "'Noto Serif SC',serif", fontSize: '0.9375rem', fontWeight: 700, letterSpacing: '.025em', lineHeight: 1.35 }}>{title}</h2>
+      <p style={{ ...SLASH_LABEL, color: 'var(--accent)', marginBottom: 10 }}>/ {title} /</p>
       {children}
     </section>
   )
