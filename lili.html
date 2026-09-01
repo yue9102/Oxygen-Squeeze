@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>哩哩｜AI 知识整理与表达训练产品</title>
-  <meta name="description" content="哩哩项目展示：把播客、口述回答等零碎输入整理为个人知识体系，并通过反思与表达训练完成内化。" />
+  <title>哩哩｜把播客捏成可生长的个人知识</title>
+  <meta name="description" content="哩哩项目展示：从个人画像建框、播客深度提炼，到反思回响与长期知识沉淀。" />
+  <link rel="icon" href="data:," />
   <style>
     :root {
       --bg: #f4f7f2;
@@ -579,6 +580,29 @@
       transform: rotate(4deg);
     }
 
+    .composition-reflection .device-quaternary {
+      width: 126px;
+      right: 15%;
+      bottom: -130px;
+      transform: rotate(1deg);
+    }
+
+    .composition-reflection {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      align-items: center;
+      gap: 12px;
+      padding: 26px 20px;
+    }
+
+    .composition-reflection .product-device {
+      position: relative;
+      inset: auto;
+      width: min(100%, 132px);
+      transform: none;
+      justify-self: center;
+    }
+
     .device-callout {
       position: absolute;
       z-index: 3;
@@ -718,6 +742,11 @@
         grid-template-columns: 1fr;
       }
 
+      .flow-grid {
+        grid-template-columns: 1fr;
+        overflow-x: visible;
+      }
+
       .app-feature { padding: 20px 16px 24px; }
       .feature-bar { margin-bottom: 18px; }
       .feature-layout,
@@ -782,6 +811,25 @@
         top: 82px;
       }
 
+      .composition-reflection .device-quaternary {
+        width: 90px;
+        right: 14%;
+        bottom: -96px;
+      }
+
+      .composition-reflection {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 18px;
+        padding: 10px 52px;
+      }
+
+      .composition-reflection .product-device {
+        position: relative;
+        inset: auto;
+        width: min(100%, 74px);
+        transform: none;
+      }
+
       .model-row { grid-template-columns: 1fr; }
       .model-key { border-bottom: 1px solid var(--line); }
     }
@@ -807,10 +855,10 @@
   <main id="top">
     <div class="wrap hero">
       <div>
-        <div class="eyebrow">播客知识内化产品</div>
+        <div class="eyebrow">个人化播客知识内化产品</div>
         <h1>哩哩</h1>
         <p class="lead">
-          哩哩帮助用户把播客、口述回答等零碎内容理一理，沉淀为个人知识框架、知识卡片、反思问题和结构化表达。
+          先认识你，再理解你听的内容。哩哩把播客提炼为与你相关的知识卡片、反思问题与个人回响，持续沉淀进一套会生长的认知框架。
         </p>
         <div class="actions">
           <a class="btn btn-primary" href="https://nico9800000-oxygen-squeeze.hf.space" target="_blank" rel="noopener noreferrer">打开在线体验</a>
@@ -819,22 +867,22 @@
         </div>
       </div>
 
-      <div class="hero-visual" aria-label="知识卡片页面预览">
-        <img src="case-assets/screenshots/04-card-insight.jpg" alt="哩哩知识卡片页面截图" />
+      <div class="hero-visual" aria-label="新版知识卡片页面预览">
+        <img src="case-assets/screenshots/latest/card-cover.webp" alt="哩哩新版播客知识卡片封面" width="786" height="1704" fetchpriority="high" />
       </div>
     </div>
 
     <section id="position">
       <div class="wrap">
         <div class="section-head">
-          <h2>个人知识整理</h2>
-          <p>产品面向高频知识输入场景，核心任务是把零碎内容纳入个人知识框架，并通过反思与表达训练完成内化。</p>
+          <h2>从「认识你」开始</h2>
+          <p>新版不再从一套固定分类出发，而是先理解用户的身份、角色与关注方向，再决定内容如何被提炼、关联和沉淀。</p>
         </div>
         <div class="positioning">
           <article class="position-card">
             <h3>产品定位</h3>
             <p>
-              面向有持续知识输入与整理需求的人群，基于用户身份生成专属知识框架，再把播客等长内容沉淀为卡片、反思问题和表达训练材料。
+              面向希望把“听过”真正变成“想过、说过、留下来”的知识工作者。产品以个人语境为起点，把每一期播客变成可复盘、可连接的认知材料。
             </p>
             <div class="mini-steps">
               <div class="mini-step">
@@ -843,24 +891,24 @@
               </div>
               <div class="mini-step">
                 <strong>内化</strong>
-                <span>知识卡片、分类沉淀、反思问题</span>
+                <span>知识卡片、个人关联、反思问题</span>
               </div>
               <div class="mini-step">
                 <strong>输出</strong>
-                <span>语音回答、结构化表达、原话对比</span>
+                <span>语音回答、个人回响、长期复盘</span>
               </div>
             </div>
           </article>
 
           <article class="position-card">
-            <h3>适用人群跨职业角色</h3>
+            <h3>同一内容，每个人看到的重点不同</h3>
             <p>
-              AI 学习者、产品经理、投资人、研究生、设计师都可以使用。差异不在于产品入口，而在于每个人的身份、角色和关注方向会生成不同知识框架。
+              专业身份、当前角色和关注方向会共同影响洞察为什么与你有关，以及它最终进入哪个知识主题。AI 学习者、产品经理、研究生和设计师都能得到不同的个人化结果。
             </p>
             <ul>
               <li>用户决定“我是谁”和“我关心什么”。</li>
-              <li>输入内容决定具体知识材料。</li>
-              <li>AI 工作流负责把内容沉淀进个人框架，并推动用户输出。</li>
+              <li>输入内容决定这一期播客提供的知识材料。</li>
+              <li>AI 负责连接“内容说了什么”和“这对我意味着什么”。</li>
             </ul>
           </article>
         </div>
@@ -871,7 +919,7 @@
       <div class="wrap">
         <div class="section-head">
           <h2>AI 工作流</h2>
-          <p>模型能力被拆解为身份理解、内容转写、知识加工和表达整理四个环节，共同支撑知识整理链路。</p>
+          <p>模型能力被拆解为画像理解、内容转写、个性化提炼和反思整理四个环节，共同支撑从输入到回响的知识内化链路。</p>
         </div>
         <div class="workflow">
           <article class="panel">
@@ -887,12 +935,12 @@
           <article class="panel">
             <span class="tag">03</span>
             <h3>知识点深度加工</h3>
-            <p>DeepSeek 从文本中提炼 summary、key insights、对用户的意义，并强制归入知识框架。</p>
+            <p>模型从完整文本中提炼 summary、关键洞察与“从我的视角看”，并归入个人知识框架。</p>
           </article>
           <article class="panel">
             <span class="tag">04</span>
-            <h3>表达训练与对比</h3>
-            <p>用户语音回答反思问题，AI 用金字塔原理、MECE 和批判性思维整理为结构化表达。</p>
+            <h3>反思与个人回响</h3>
+            <p>用户用语音回答个性化问题，AI 保留原意并整理为可再次阅读、继续思考的个人回响。</p>
           </article>
         </div>
       </div>
@@ -901,8 +949,8 @@
     <section id="flow">
       <div class="wrap">
         <div class="section-head">
-          <h2>知识整理闭环</h2>
-          <p>知识内容的输入、加工、沉淀与输出验证形成连续链路，覆盖从内容导入到表达观点的完整过程。</p>
+          <h2>从听见到留下</h2>
+          <p>新版把画像、卡片、反思、回响和书架串成一条连续路径，让一次收听最终进入长期认知资产。</p>
         </div>
         <div class="flow">
           <div class="flow-grid" aria-label="产品流程">
@@ -938,8 +986,8 @@
             </div>
             <div class="step">
               <span>07</span>
-              <strong>表达训练</strong>
-              <p>保留原始口述，并用思维框架整理为结构化表达。</p>
+              <strong>形成回响</strong>
+              <p>保留真实观点并结构化整理，沉淀为以后可以回看的个人回响。</p>
             </div>
           </div>
         </div>
@@ -950,7 +998,7 @@
       <div class="wrap">
         <div class="section-head">
           <h2>App 核心体验</h2>
-          <p>从身份建框、内容加工到知识沉淀与表达训练，真实页面串联起完整的知识整理路径。</p>
+          <p>以下全部使用本次更新的真实 App 页面，依次呈现画像建框、内容提炼、主题沉淀与反思回响。</p>
         </div>
 
         <div class="app-showcase">
@@ -963,8 +1011,8 @@
             <div class="feature-layout">
               <div class="feature-copy">
                 <p class="feature-kicker">Personal Context</p>
-                <h4>先定义“我是谁”</h4>
-                <p>用户输入身份、角色和关注方向，AI 据此生成长期承接知识的个人框架。</p>
+                <h4>先让产品认识你</h4>
+                <p>用户输入专业身份、当前角色和关注方向，AI 据此生成长期承接知识的个人框架；画像可在“关于我”中持续维护。</p>
                 <div class="feature-points">
                   <div class="feature-point">
                     <strong>身份输入</strong>
@@ -978,10 +1026,10 @@
               </div>
               <div class="device-composition composition-identity" aria-label="身份输入与个人资料页面组合">
                 <div class="product-device device-primary">
-                  <img src="case-assets/screenshots/01-onboarding.jpg" alt="用户身份输入与知识框架生成页面" />
+                  <img src="case-assets/screenshots/latest/onboarding.webp" alt="新版身份、职业角色与关注方向输入页面" width="786" height="1704" loading="lazy" />
                 </div>
                 <div class="product-device device-secondary">
-                  <img src="case-assets/screenshots/08-profile.jpg" alt="用户个人资料与知识框架页面" />
+                  <img src="case-assets/screenshots/latest/profile.webp" alt="新版关于我页面，展示画像标签、统计与最近播客" width="786" height="1704" loading="lazy" />
                 </div>
                 <span class="device-callout callout-top-left">输入身份与关注方向</span>
                 <span class="device-callout callout-bottom-right">沉淀个人知识坐标</span>
@@ -998,8 +1046,8 @@
             <div class="feature-layout">
               <div class="feature-copy">
                 <p class="feature-kicker">Podcast To Insight</p>
-                <h4>从链接到关键洞察</h4>
-                <p>播客链接进入系统后，自动完成音频抓取、转录与深度加工，把长内容压缩为可复用的知识单元。</p>
+                <h4>从一条链接到一组观点卡片</h4>
+                <p>粘贴小宇宙或 Apple Podcasts 链接后，系统完成内容识别、转写与提炼，用可滑动卡片呈现总览、洞察和个人关联。</p>
                 <div class="feature-points">
                   <div class="feature-point">
                     <strong>低摩擦输入</strong>
@@ -1007,19 +1055,19 @@
                   </div>
                   <div class="feature-point">
                     <strong>深度提炼</strong>
-                    <span>从完整转录中生成总结、洞察及其个人意义。</span>
+                    <span>从完整转录中生成总结、洞察与“从我的视角看”。</span>
                   </div>
                 </div>
               </div>
               <div class="device-composition composition-ingest" aria-label="播客输入与知识卡片页面组合">
                 <div class="product-device device-secondary">
-                  <img src="case-assets/screenshots/03-card-cover.jpg" alt="播客知识卡片封面页面" />
+                  <img src="case-assets/screenshots/latest/card-cover.webp" alt="新版播客卡片封面页面" width="786" height="1704" loading="lazy" />
                 </div>
                 <div class="product-device device-primary">
-                  <img src="case-assets/screenshots/02-home.jpg" alt="播客输入与最近听过页面" />
+                  <img src="case-assets/screenshots/latest/podcast-link.webp" alt="新版播客链接导入底部面板" width="786" height="1704" loading="lazy" />
                 </div>
                 <div class="product-device device-tertiary">
-                  <img src="case-assets/screenshots/04-card-insight.jpg" alt="播客关键洞察页面" />
+                  <img src="case-assets/screenshots/latest/insight-agent-teams.webp" alt="新版 Agent 从科研转向工程问题的洞察卡片" width="786" height="1704" loading="lazy" />
                 </div>
                 <span class="device-callout callout-top-right">链接识别与转录</span>
                 <span class="device-callout callout-bottom-left">卡片化提炼知识点</span>
@@ -1030,34 +1078,34 @@
           <article class="app-feature">
             <div class="feature-bar">
               <span class="feature-index">03</span>
-              <h3>长期沉淀</h3>
+              <h3>知识生长</h3>
               <span class="feature-rule" aria-hidden="true"></span>
             </div>
             <div class="feature-layout">
               <div class="feature-copy">
                 <p class="feature-kicker">Knowledge Library</p>
-                <h4>让知识持续生长</h4>
-                <p>每条洞察被归入个人知识框架，并在书架与专题中持续积累，形成可检索、可复盘的长期资产。</p>
+                <h4>看见自己的认知版图</h4>
+                <p>每条洞察都被归入个人知识框架；“沉淀下来的”展示主题与概念，“书架”则保留可继续进入的播客内容。</p>
                 <div class="feature-points">
                   <div class="feature-point">
                     <strong>框架归类</strong>
-                    <span>知识点对应唯一 anchor 与 subtopic，减少内容散落。</span>
+                    <span>知识点对应主题与概念，逐渐形成个人认知版图。</span>
                   </div>
                   <div class="feature-point">
                     <strong>持续复盘</strong>
-                    <span>从书架进入专题，追踪同一方向下的知识积累。</span>
+                    <span>从书架回到播客，从主题追踪同一方向的长期积累。</span>
                   </div>
                 </div>
               </div>
               <div class="device-composition composition-library" aria-label="知识书架与专题页面组合">
                 <div class="product-device device-secondary">
-                  <img src="case-assets/screenshots/04-card-insight.jpg" alt="播客洞察知识卡片页面" />
+                  <img src="case-assets/screenshots/latest/insight-model-evolution.webp" alt="新版开源模型本地部署洞察与个人视角卡片" width="786" height="1704" loading="lazy" />
                 </div>
                 <div class="product-device device-primary">
-                  <img src="case-assets/screenshots/05-shelf.jpg" alt="个人知识书架页面" />
+                  <img src="case-assets/screenshots/latest/knowledge-map.webp" alt="新版沉淀下来的个人知识主题页面" width="786" height="1704" loading="lazy" />
                 </div>
                 <div class="product-device device-tertiary">
-                  <img src="case-assets/screenshots/06-topic-detail.jpg" alt="知识专题详情页面" />
+                  <img src="case-assets/screenshots/latest/topic-library.webp" alt="新版前沿趋势专题与播客列表页面" width="786" height="1704" loading="lazy" />
                 </div>
                 <span class="device-callout callout-top-left">按个人框架归类</span>
                 <span class="device-callout callout-bottom-right">进入专题持续复盘</span>
@@ -1068,14 +1116,14 @@
           <article class="app-feature reverse" id="output">
             <div class="feature-bar">
               <span class="feature-index">04</span>
-              <h3>反思输出</h3>
+              <h3>反思回响</h3>
               <span class="feature-rule" aria-hidden="true"></span>
             </div>
             <div class="feature-layout">
               <div class="feature-copy">
                 <p class="feature-kicker">Reflection To Expression</p>
-                <h4>从思考到清晰表达</h4>
-                <p>系统围绕播客洞察生成反思问题，用户用语音自然作答，再通过原话与结构化版本的对照训练表达。</p>
+                <h4>把“听懂了”变成“我怎么想”</h4>
+                <p>系统结合播客洞察与个人身份生成问题，用户语音作答后沉淀为回响；既能看到近期回响，也能进入详情继续复盘。</p>
                 <div class="feature-points three-points">
                   <div class="feature-point">
                     <strong>启发思考</strong>
@@ -1086,22 +1134,25 @@
                     <span>用底部录音面板降低输出门槛，先完整说出真实想法。</span>
                   </div>
                   <div class="feature-point">
-                    <strong>表达对比</strong>
-                    <span>同时保留原始口述与 AI 整理结果，观察结构和表达差异。</span>
+                    <strong>回响沉淀</strong>
+                    <span>把回答整理成结构清晰的个人观点，并保留与播客、问题的上下文。</span>
                   </div>
                 </div>
               </div>
-              <div class="device-composition composition-reflection" aria-label="反思问题、语音回答与表达沉淀页面组合">
+              <div class="device-composition composition-reflection" aria-label="反思问题、语音回答、回响列表与回响详情页面组合">
                 <div class="product-device device-secondary">
-                  <img src="case-assets/screenshots/10-voice-answer-screen.png" alt="真实 App 语音回答弹层页面" />
+                  <img src="case-assets/screenshots/latest/voice-answer.webp" alt="新版语音回答底部面板" width="786" height="1704" loading="lazy" />
                 </div>
                 <div class="product-device device-primary">
-                  <img src="case-assets/screenshots/09-reflection-questions-screen.png" alt="真实 App 今天值得想一想页面" />
+                  <img src="case-assets/screenshots/latest/reflection-questions.webp" alt="新版今天值得想一想反思问题页面" width="786" height="1704" loading="lazy" />
                 </div>
                 <div class="product-device device-tertiary">
-                  <img src="case-assets/screenshots/07-reflections.jpg" alt="反思与结构化表达页面" />
+                  <img src="case-assets/screenshots/latest/reflection-feed.webp" alt="新版听完的回响列表页面" width="786" height="1704" loading="lazy" />
                 </div>
-                <span class="device-callout callout-top-right">保留原话并生成结构化表达</span>
+                <div class="product-device device-quaternary">
+                  <img src="case-assets/screenshots/latest/reflection-detail.webp" alt="新版回响详情与结构化个人观点页面" width="786" height="1704" loading="lazy" />
+                </div>
+                <span class="device-callout callout-top-right">回答沉淀为个人回响</span>
                 <span class="device-callout callout-bottom-left">从反思问题进入语音回答</span>
               </div>
             </div>
@@ -1114,7 +1165,7 @@
       <div class="wrap">
         <div class="section-head">
           <h2>模型策略</h2>
-          <p>每个模型环节都对应一个明确的产品问题，保证生成结果能够进入页面、卡片、书架和表达沉淀流程。</p>
+          <p>每个模型环节都对应一个明确的产品问题，保证生成结果能够进入卡片、主题、书架和个人回响，而不是停留在一次性摘要。</p>
         </div>
         <div class="model-card" aria-label="模型策略">
           <div class="model-row">
@@ -1134,8 +1185,8 @@
             <div class="model-value">解决模型结果不可产品化的问题，用 JSON 输出直接驱动卡片、书架和表达沉淀页面。</div>
           </div>
           <div class="model-row">
-            <div class="model-key">表达整理 Skill</div>
-            <div class="model-value">解决“说出来不等于说清楚”的问题，用金字塔原理、MECE 和批判性思维整理口述回答。</div>
+            <div class="model-key">回响整理 Skill</div>
+            <div class="model-value">解决“说出来不等于留下来”的问题，在保留个人原意的基础上整理结构、补足论证，并连接回原播客与问题。</div>
           </div>
         </div>
       </div>
@@ -1147,7 +1198,7 @@
           <div>
             <h2>在线体验</h2>
             <p>
-              在线 App 可体验从身份确认、内容导入到知识卡片与表达沉淀的完整流程。
+              在线 App 可体验从画像建框、播客导入、卡片洞察到反思回响与知识沉淀的新版完整流程。
             </p>
           </div>
           <div class="actions">
@@ -1160,7 +1211,7 @@
 
   <footer>
     <div class="wrap">
-      哩哩 Case Study。截图基于项目当前真实页面与演示数据生成；在线体验依赖部署服务和模型接口状态。
+      哩哩 Case Study。页面已更新为 2026 年 9 月的真实 App 截图与演示数据；在线体验依赖部署服务和模型接口状态。
     </div>
   </footer>
 </body>
