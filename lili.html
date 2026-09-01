@@ -232,19 +232,8 @@
       min-width: 184px;
       min-height: 50px;
       padding: 0 24px;
-      gap: 10px;
-      border-radius: 999px;
-      box-shadow: 0 10px 24px rgba(92, 139, 110, 0.2);
-    }
-
-    .hero-cta .cta-arrow {
-      font-size: 16px;
-      line-height: 1;
-      transition: transform 160ms ease;
-    }
-
-    .hero-cta:hover .cta-arrow {
-      transform: translate(2px, -2px);
+      border-radius: 8px;
+      box-shadow: 0 8px 18px rgba(92, 139, 110, 0.16);
     }
 
     section {
@@ -626,48 +615,37 @@
     }
 
     .composition-reflection .device-primary {
-      width: 218px;
-      left: 35%;
-      top: 18px;
+      z-index: 4;
+      width: 190px;
+      left: 25%;
+      top: 42px;
       transform: rotate(-1deg);
     }
 
     .composition-reflection .device-secondary {
-      width: 156px;
-      left: 6%;
-      top: 94px;
+      width: 150px;
+      left: 4%;
+      top: 110px;
       transform: rotate(-4deg);
     }
 
     .composition-reflection .device-tertiary {
-      width: 148px;
-      right: 5%;
-      top: 92px;
-      transform: rotate(4deg);
-    }
-
-    .composition-reflection .device-quaternary {
-      width: 126px;
-      right: 15%;
-      bottom: -130px;
+      z-index: 3;
+      width: 190px;
+      right: 25%;
+      top: 42px;
       transform: rotate(1deg);
     }
 
-    .composition-reflection {
-      display: grid;
-      height: 760px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      align-items: center;
-      gap: 18px 28px;
-      padding: 20px 70px;
+    .composition-reflection .device-quaternary {
+      width: 150px;
+      right: 4%;
+      top: 110px;
+      transform: rotate(4deg);
     }
 
-    .composition-reflection .product-device {
-      position: relative;
-      inset: auto;
-      width: min(100%, 160px);
-      transform: none;
-      justify-self: center;
+    .composition-reflection {
+      height: 500px;
     }
 
     .composition-reflection .callout-top-right {
@@ -808,12 +786,27 @@
       .composition-library .device-primary,
       .composition-reflection .device-primary { left: 31%; }
       .composition-reflection {
-        height: 710px;
-        gap: 16px 24px;
-        padding: 18px 60px;
+        height: 400px;
       }
-      .composition-reflection .product-device {
-        width: min(100%, 150px);
+      .composition-reflection .device-secondary {
+        width: 120px;
+        left: 4%;
+        top: 92px;
+      }
+      .composition-reflection .device-primary {
+        width: 150px;
+        left: 24%;
+        top: 38px;
+      }
+      .composition-reflection .device-tertiary {
+        width: 150px;
+        right: 24%;
+        top: 38px;
+      }
+      .composition-reflection .device-quaternary {
+        width: 120px;
+        right: 4%;
+        top: 92px;
       }
       .device-callout { display: none; }
     }
@@ -830,6 +823,10 @@
       .section-head h2 { font-size: 28px; }
       .actions { flex-direction: column; }
       .btn { width: 100%; }
+      .hero-cta {
+        align-self: flex-start;
+        width: auto;
+      }
       .mini-steps,
       .workflow {
         grid-template-columns: 1fr;
@@ -905,23 +902,35 @@
       }
 
       .composition-reflection .device-quaternary {
-        width: 90px;
-        right: 14%;
-        bottom: -96px;
+        width: 92px;
+        right: 3%;
+        top: 88px;
+        transform: rotate(4deg);
       }
 
       .composition-reflection {
-        height: 500px;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px 16px;
-        padding: 10px 48px;
+        height: 310px;
       }
 
-      .composition-reflection .product-device {
-        position: relative;
-        inset: auto;
-        width: min(100%, 106px);
-        transform: none;
+      .composition-reflection .device-secondary {
+        width: 92px;
+        left: 3%;
+        top: 88px;
+        transform: rotate(-4deg);
+      }
+
+      .composition-reflection .device-primary {
+        width: 116px;
+        left: 18%;
+        top: 38px;
+        transform: rotate(-1deg);
+      }
+
+      .composition-reflection .device-tertiary {
+        width: 116px;
+        right: 18%;
+        top: 38px;
+        transform: rotate(1deg);
       }
 
       .model-row { grid-template-columns: 1fr; }
@@ -963,7 +972,7 @@
           <cite>—— 芭芭拉·明托《金字塔原理》</cite>
         </div>
         <div class="actions">
-          <a class="btn btn-primary hero-cta" href="https://nico9800000-oxygen-squeeze.hf.space" target="_blank" rel="noopener noreferrer"><span>打开在线体验</span><span class="cta-arrow" aria-hidden="true">↗</span></a>
+          <a class="btn btn-primary hero-cta" href="https://nico9800000-oxygen-squeeze.hf.space" target="_blank" rel="noopener noreferrer">打开在线体验</a>
         </div>
       </div>
 
