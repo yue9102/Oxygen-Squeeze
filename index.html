@@ -165,7 +165,7 @@
     }
 
     .hero-visual {
-      width: min(300px, 100%);
+      width: min(224px, 100%);
       justify-self: center;
       background: rgba(255,255,255,0.64);
       border: 1px solid var(--line);
@@ -177,6 +177,9 @@
     .hero-visual img {
       display: block;
       width: 100%;
+      height: auto;
+      aspect-ratio: 1179 / 2556;
+      object-fit: contain;
       border-radius: 28px;
       background: var(--bg);
     }
@@ -733,6 +736,7 @@
       .nav { height: auto; padding: 14px 0; align-items: start; }
       .nav-links { display: none; }
       .hero { padding-top: 48px; }
+      .hero-visual { width: min(210px, 100%); }
       h1 { font-size: 42px; }
       .section-head h2 { font-size: 28px; }
       .actions { flex-direction: column; }
