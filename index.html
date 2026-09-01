@@ -462,6 +462,11 @@
       grid-template-columns: minmax(0, 1.38fr) minmax(230px, 0.62fr);
     }
 
+    #output .feature-layout {
+      grid-template-columns: minmax(0, 1.58fr) minmax(250px, 0.62fr);
+      gap: 24px;
+    }
+
     .feature-kicker {
       margin: 0 0 8px;
       color: var(--rust);
@@ -615,37 +620,38 @@
     }
 
     .composition-reflection .device-primary {
-      z-index: 4;
-      width: 190px;
-      left: 25%;
-      top: 42px;
-      transform: rotate(-1deg);
+      width: min(100%, 170px);
+      transform: translateY(-10px) rotate(-1deg);
     }
 
     .composition-reflection .device-secondary {
-      width: 150px;
-      left: 4%;
-      top: 110px;
-      transform: rotate(-4deg);
+      width: min(100%, 150px);
+      transform: translateY(18px) rotate(-3deg);
     }
 
     .composition-reflection .device-tertiary {
-      z-index: 3;
-      width: 190px;
-      right: 25%;
-      top: 42px;
-      transform: rotate(1deg);
+      width: min(100%, 170px);
+      transform: translateY(-10px) rotate(1deg);
     }
 
     .composition-reflection .device-quaternary {
-      width: 150px;
-      right: 4%;
-      top: 110px;
-      transform: rotate(4deg);
+      width: min(100%, 150px);
+      transform: translateY(18px) rotate(3deg);
     }
 
     .composition-reflection {
+      display: grid;
       height: 500px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      align-items: center;
+      gap: 20px;
+      padding: 24px 26px;
+    }
+
+    .composition-reflection .product-device {
+      position: relative;
+      inset: auto;
+      justify-self: center;
     }
 
     .composition-reflection .callout-top-right {
@@ -779,6 +785,10 @@
         grid-template-columns: minmax(0, 1.48fr) minmax(210px, 0.52fr);
       }
 
+      #output .feature-layout {
+        grid-template-columns: 1fr;
+      }
+
       .device-composition { height: 460px; }
       .composition-identity .device-primary { left: 19%; }
       .composition-identity .device-secondary { right: 7%; }
@@ -786,27 +796,26 @@
       .composition-library .device-primary,
       .composition-reflection .device-primary { left: 31%; }
       .composition-reflection {
-        height: 400px;
+        height: 420px;
+        gap: 18px;
+        padding: 24px 30px;
       }
+      .composition-reflection .product-device { inset: auto; }
       .composition-reflection .device-secondary {
-        width: 120px;
-        left: 4%;
-        top: 92px;
+        width: min(100%, 140px);
+        transform: translateY(16px) rotate(-3deg);
       }
       .composition-reflection .device-primary {
-        width: 150px;
-        left: 24%;
-        top: 38px;
+        width: min(100%, 160px);
+        transform: translateY(-8px) rotate(-1deg);
       }
       .composition-reflection .device-tertiary {
-        width: 150px;
-        right: 24%;
-        top: 38px;
+        width: min(100%, 160px);
+        transform: translateY(-8px) rotate(1deg);
       }
       .composition-reflection .device-quaternary {
-        width: 120px;
-        right: 4%;
-        top: 92px;
+        width: min(100%, 140px);
+        transform: translateY(16px) rotate(3deg);
       }
       .device-callout { display: none; }
     }
@@ -902,35 +911,30 @@
       }
 
       .composition-reflection .device-quaternary {
-        width: 92px;
-        right: 3%;
-        top: 88px;
-        transform: rotate(4deg);
+        width: min(100%, 92px);
+        transform: translateY(12px) rotate(3deg);
       }
 
       .composition-reflection {
-        height: 310px;
+        height: clamp(250px, 50vw, 330px);
+        gap: 8px;
+        padding: 16px 12px;
       }
+      .composition-reflection .product-device { inset: auto; }
 
       .composition-reflection .device-secondary {
-        width: 92px;
-        left: 3%;
-        top: 88px;
-        transform: rotate(-4deg);
+        width: min(100%, 92px);
+        transform: translateY(12px) rotate(-3deg);
       }
 
       .composition-reflection .device-primary {
-        width: 116px;
-        left: 18%;
-        top: 38px;
-        transform: rotate(-1deg);
+        width: min(100%, 112px);
+        transform: translateY(-6px) rotate(-1deg);
       }
 
       .composition-reflection .device-tertiary {
-        width: 116px;
-        right: 18%;
-        top: 38px;
-        transform: rotate(1deg);
+        width: min(100%, 112px);
+        transform: translateY(-6px) rotate(1deg);
       }
 
       .model-row { grid-template-columns: 1fr; }
