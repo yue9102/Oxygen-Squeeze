@@ -224,6 +224,29 @@
       font-style: normal;
     }
 
+    .hero .actions {
+      margin-top: 18px;
+    }
+
+    .hero-cta {
+      min-width: 184px;
+      min-height: 50px;
+      padding: 0 24px;
+      gap: 10px;
+      border-radius: 999px;
+      box-shadow: 0 10px 24px rgba(92, 139, 110, 0.2);
+    }
+
+    .hero-cta .cta-arrow {
+      font-size: 16px;
+      line-height: 1;
+      transition: transform 160ms ease;
+    }
+
+    .hero-cta:hover .cta-arrow {
+      transform: translate(2px, -2px);
+    }
+
     section {
       padding: 50px 0;
       scroll-margin-top: 84px;
@@ -632,18 +655,30 @@
 
     .composition-reflection {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      height: 760px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       align-items: center;
-      gap: 12px;
-      padding: 26px 20px;
+      gap: 18px 28px;
+      padding: 20px 70px;
     }
 
     .composition-reflection .product-device {
       position: relative;
       inset: auto;
-      width: min(100%, 132px);
+      width: min(100%, 160px);
       transform: none;
       justify-self: center;
+    }
+
+    .composition-reflection .callout-top-right {
+      top: 18px;
+      right: 2%;
+      width: 110px;
+    }
+
+    .composition-reflection .callout-bottom-left {
+      left: 2%;
+      width: 110px;
     }
 
     .device-callout {
@@ -736,6 +771,10 @@
       font-size: 13px;
     }
 
+    @media (max-width: 1180px) {
+      .composition-reflection .device-callout { display: none; }
+    }
+
     @media (max-width: 980px) {
       .hero,
       .positioning,
@@ -768,6 +807,14 @@
       .composition-ingest .device-primary,
       .composition-library .device-primary,
       .composition-reflection .device-primary { left: 31%; }
+      .composition-reflection {
+        height: 710px;
+        gap: 16px 24px;
+        padding: 18px 60px;
+      }
+      .composition-reflection .product-device {
+        width: min(100%, 150px);
+      }
       .device-callout { display: none; }
     }
 
@@ -864,15 +911,16 @@
       }
 
       .composition-reflection {
+        height: 500px;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px 18px;
-        padding: 10px 52px;
+        gap: 8px 16px;
+        padding: 10px 48px;
       }
 
       .composition-reflection .product-device {
         position: relative;
         inset: auto;
-        width: min(100%, 74px);
+        width: min(100%, 106px);
         transform: none;
       }
 
@@ -902,20 +950,20 @@
   <main id="top">
     <div class="wrap hero">
       <div class="hero-copy" id="why">
-        <div class="eyebrow">个人化播客知识内化产品</div>
+        <div class="eyebrow">播客知识内化产品</div>
         <h1>哩哩</h1>
         <p class="lead">
           先认识你，再理解你听的内容。哩哩把播客提炼为与你相关的知识卡片、反思问题与个人回响，持续沉淀进一套会生长的认知框架。
         </p>
         <div class="hero-origin">
-          <p class="origin-kicker">Why it matters · 产品缘起</p>
+          <p class="origin-kicker">产品缘起</p>
           <blockquote>
             “人类还有一个共同的特点，即只有用某种方式将思想表达出来——说出来或者写下来，我们才能够准确地把握自己的思想。”
           </blockquote>
           <cite>—— 芭芭拉·明托《金字塔原理》</cite>
         </div>
         <div class="actions">
-          <a class="btn btn-primary" href="https://nico9800000-oxygen-squeeze.hf.space" target="_blank" rel="noopener noreferrer">打开在线体验</a>
+          <a class="btn btn-primary hero-cta" href="https://nico9800000-oxygen-squeeze.hf.space" target="_blank" rel="noopener noreferrer"><span>打开在线体验</span><span class="cta-arrow" aria-hidden="true">↗</span></a>
         </div>
       </div>
 
@@ -928,13 +976,13 @@
       <div class="wrap">
         <div class="section-head">
           <h2>从「认识你」开始</h2>
-          <p>新版不再从一套固定分类出发，而是先理解用户的身份、角色与关注方向，再决定内容如何被提炼、关联和沉淀。</p>
+          <p>产品先理解用户的身份、角色与关注方向，再决定内容如何被提炼、关联和沉淀，而不是套用一套固定分类。</p>
         </div>
         <div class="positioning">
           <article class="position-card">
             <h3>产品定位</h3>
             <p>
-              面向希望把“听过”真正变成“想过、说过、留下来”的知识工作者。产品以个人语境为起点，把每一期播客变成可复盘、可连接的认知材料。
+              面向希望把“听过”真正变成“想过、说过、留下来”的持续学习者。产品以个人语境为起点，把每一期播客变成可复盘、可连接的认知材料。
             </p>
             <div class="mini-steps">
               <div class="mini-step">
@@ -955,7 +1003,7 @@
           <article class="position-card">
             <h3>同一内容，每个人看到的重点不同</h3>
             <p>
-              专业身份、当前角色和关注方向会共同影响洞察为什么与你有关，以及它最终进入哪个知识主题。AI 学习者、产品经理、研究生和设计师都能得到不同的个人化结果。
+              无论是学生、医生、创业者、投资人、教师还是艺术创作者，同一期播客都会因身份、任务和关注点不同，生成不同的个人化洞察。
             </p>
             <ul>
               <li>用户决定“我是谁”和“我关心什么”。</li>
