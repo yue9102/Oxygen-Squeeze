@@ -184,71 +184,44 @@
       background: var(--bg);
     }
 
-    .origin-card {
-      display: grid;
-      grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
-      gap: 34px;
-      align-items: stretch;
-      padding: 34px;
-      background:
-        linear-gradient(135deg, rgba(92,139,110,0.13), rgba(255,255,255,0.82)),
-        var(--paper);
-      border: 1px solid rgba(92,139,110,0.24);
-      border-radius: 8px;
-      box-shadow: var(--soft-shadow);
+    .hero-copy {
+      min-width: 0;
+      scroll-margin-top: 84px;
     }
 
-    .origin-kicker {
-      margin: 0 0 12px;
+    .hero-origin {
+      max-width: 720px;
+      margin-top: 24px;
+      padding: 16px 18px;
+      background: rgba(255,255,255,0.5);
+      border-left: 3px solid var(--green);
+      border-radius: 0 8px 8px 0;
+    }
+
+    .hero-origin .origin-kicker {
+      margin: 0 0 7px;
       color: var(--green);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 900;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
-    .origin-quote blockquote {
+    .hero-origin blockquote {
       margin: 0;
       font-family: "Noto Serif SC", "Songti SC", serif;
-      font-size: 28px;
-      font-weight: 700;
-      line-height: 1.55;
-      letter-spacing: 0.01em;
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.7;
     }
 
-    .origin-quote cite {
+    .hero-origin cite {
       display: block;
-      margin-top: 18px;
+      margin-top: 8px;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
       font-style: normal;
-    }
-
-    .origin-reasons {
-      display: grid;
-      grid-template-rows: repeat(2, 1fr);
-      gap: 12px;
-    }
-
-    .origin-reason {
-      padding: 20px;
-      background: rgba(255,255,255,0.78);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }
-
-    .origin-reason strong {
-      display: block;
-      margin-bottom: 8px;
-      color: var(--green);
-      font-size: 14px;
-    }
-
-    .origin-reason p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.65;
     }
 
     section {
@@ -766,7 +739,6 @@
     @media (max-width: 980px) {
       .hero,
       .positioning,
-      .origin-card,
       .demo-box {
         grid-template-columns: 1fr;
       }
@@ -805,9 +777,8 @@
       .nav-links { display: none; }
       .hero { padding-top: 48px; }
       .hero-visual { width: min(210px, 100%); }
-      .origin-card { padding: 24px 18px; gap: 24px; }
-      .origin-quote blockquote { font-size: 23px; }
-      .origin-reasons { grid-template-rows: auto; }
+      .hero-origin { margin-top: 20px; padding: 14px 15px; }
+      .hero-origin blockquote { font-size: 16px; }
       h1 { font-size: 42px; }
       .section-head h2 { font-size: 28px; }
       .actions { flex-direction: column; }
@@ -930,12 +901,19 @@
 
   <main id="top">
     <div class="wrap hero">
-      <div>
+      <div class="hero-copy" id="why">
         <div class="eyebrow">个人化播客知识内化产品</div>
         <h1>哩哩</h1>
         <p class="lead">
           先认识你，再理解你听的内容。哩哩把播客提炼为与你相关的知识卡片、反思问题与个人回响，持续沉淀进一套会生长的认知框架。
         </p>
+        <div class="hero-origin">
+          <p class="origin-kicker">Why it matters · 产品缘起</p>
+          <blockquote>
+            “人类还有一个共同的特点，即只有用某种方式将思想表达出来——说出来或者写下来，我们才能够准确地把握自己的思想。”
+          </blockquote>
+          <cite>—— 芭芭拉·明托《金字塔原理》</cite>
+        </div>
         <div class="actions">
           <a class="btn btn-primary" href="https://nico9800000-oxygen-squeeze.hf.space" target="_blank" rel="noopener noreferrer">打开在线体验</a>
           <a class="btn" href="https://huggingface.co/spaces/nico9800000/oxygen-squeeze" target="_blank" rel="noopener noreferrer">查看部署页面</a>
@@ -947,30 +925,6 @@
         <img src="case-assets/screenshots/latest/card-cover.webp" alt="哩哩新版播客知识卡片封面" width="786" height="1704" fetchpriority="high" />
       </div>
     </div>
-
-    <section id="why">
-      <div class="wrap">
-        <div class="origin-card">
-          <div class="origin-quote">
-            <p class="origin-kicker">Why it matters · 产品缘起</p>
-            <blockquote>
-              “人类还有一个共同的特点，即只有用某种方式将思想表达出来——说出来或者写下来，我们才能够准确地把握自己的思想。”
-            </blockquote>
-            <cite>—— 芭芭拉·明托《金字塔原理》</cite>
-          </div>
-          <div class="origin-reasons" aria-label="产品出发点与必要性">
-            <div class="origin-reason">
-              <strong>出发点</strong>
-              <p>播客给了我们他人的观点，但“听懂”并不等于形成自己的认识。产品需要让用户从知识输入真正走向个人表达。</p>
-            </div>
-            <div class="origin-reason">
-              <strong>必要性</strong>
-              <p>当用户回答反思问题、说出自己的判断，模糊感受才会变成可整理、可复盘、可持续生长的个人回响。</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <section id="position">
       <div class="wrap">
